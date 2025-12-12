@@ -49,7 +49,7 @@ public class AuthenticationService {
         List<String> errors = new ArrayList<>();
      try {
          AlrawiUser user = userMapper.mapUser(registerRequest);
-
+         user.setUsername(registerRequest.getEmail());
          if (registerRequest.getNationalId() != null) {
              boolean isNationalIdExist = checkIfNationalIsExist(registerRequest.getEmail());
              if (isNationalIdExist)
