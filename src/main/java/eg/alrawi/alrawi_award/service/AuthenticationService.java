@@ -53,7 +53,7 @@ public class AuthenticationService {
          if (registerRequest.getNationalId() != null) {
              boolean isNationalIdExist = checkIfNationalIsExist(registerRequest.getEmail());
              if (isNationalIdExist)
-                     errors.add("National ID is already exist");
+                     errors.add("National ID is already exist ");
          }else if (registerRequest.getPassportNumber()!=null) {
              boolean isPassPortExist=checkIfPassportIsExist(registerRequest.getPassportNumber());
              if (isPassPortExist)
