@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Setter
 @Getter
@@ -16,4 +17,6 @@ public class UserResponseDto implements Serializable {
     private String city;
     private String government;
     private String dateOfBirth;
+
+    private List<ProjectDto> projects;
 }

@@ -11,12 +11,14 @@ import eg.alrawi.alrawi_award.mapper.UserMapper;
 import eg.alrawi.alrawi_award.model.ImageType;
 import eg.alrawi.alrawi_award.model.Role;
 import eg.alrawi.alrawi_award.repository.UserRepository;
+import eg.alrawi.alrawi_award.utils.DecodedToken;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
-
 import static eg.alrawi.alrawi_award.utils.NationalUtils.extractBirthDateFormatted;
 import static eg.alrawi.alrawi_award.utils.NationalUtils.extractGender;
 
@@ -29,6 +31,8 @@ public class AuthenticationService {
     private  final UserRepository userRepository;
     private final FileService fileService;
     private final UserMapper userMapper;
+    private final HttpServletRequest request;
+
 
     public ApiResponseDto<?> registerUser(RegisterDto registerRequest) {
 
@@ -75,6 +79,75 @@ public class AuthenticationService {
 
     }
 
+
+
+    public ApiResponseDto<?> getUserProfile() {
+        try {
+            String userEmail = DecodedToken.getEmailFromToken(request.getHeader("Authorization").substring(7));
+            AlrawiUser user = userRepository.findByEmail(userEmail).orElse(null);
+            if (user == null)
+                throw new UsernameNotFoundException("Username Not Found");
+
+            UserResponseDto userResponseDto =userMapper.mapUserDto(user);
+          //  userResponseDto.setProjects();
+
+            return  ApiResponseDto.success(userResponseDto,"SUCCESS");
+
+        }catch (BusinessException businessException){
+            log.error("get user profile failed (businessException) ",businessException);
+            return ApiResponseDto.businessException(List.of(businessException.getMessage()));
+        }catch (Exception e){
+            log.error("get user profile failed (e) ",e);
+            return ApiResponseDto.error(List.of("An error occurred while processing the request"));
+        }
+    }
+
+
+    public ApiResponseDto<?> updateUser(RegisterDto registerRequest){
+
+    try {
+
+        String userEmail = DecodedToken.getEmailFromToken(request.getHeader("Authorization").substring(7));
+        AlrawiUser user = userRepository.findByEmail(userEmail).orElse(null);
+        if (user == null)
+            throw new UsernameNotFoundException("Username Not Found");
+
+        if (registerRequest.getCity() != null)
+            user.setCity(registerRequest.getCity());
+
+        if (registerRequest.getGovernment() != null)
+            user.setGovernment(registerRequest.getGovernment());
+
+        if (registerRequest.getFullName() != null)
+            user.setFullName(registerRequest.getFullName());
+
+        if (registerRequest.getNationalId() != null)
+            user.setNationalId(registerRequest.getNationalId());
+
+        if (registerRequest.getEmail() != null)
+            user.setEmail(registerRequest.getEmail());
+
+        if (registerRequest.getPassportNumber() != null)
+            user.setPassportNumber(registerRequest.getPassportNumber());
+
+        if (registerRequest.getNationalId() != null)
+            user.setNationalId(registerRequest.getNationalId());
+
+        user=userRepository.save(user);
+        UserResponseDto userResponseDto =userMapper.mapUserDto(user)  ;
+        return  ApiResponseDto.success(userResponseDto,"SUCCESS");
+    }catch (BusinessException businessException){
+       log.error("update user failed (businessException) ",businessException);
+        return ApiResponseDto.businessException(List.of(businessException.getMessage()));
+
+    }catch (Exception e){
+        log.error("Error while updating user {}",registerRequest.getEmail(),e);
+        return ApiResponseDto.businessException(List.of(e.getMessage()));
+
+    }
+    }
+
+
     public boolean checkIfEmailIsExist(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
@@ -98,9 +171,6 @@ public class AuthenticationService {
             fileService.uploadFile(registerRequest.getNationalImgBack(), registerRequest.getPassportNumber()+"_"+ImageType.PASSPORT);
         }
     }
-
-
-
 
     private List<UserImage> getUserImages(RegisterDto registerRequest, AlrawiUser user) {
 
