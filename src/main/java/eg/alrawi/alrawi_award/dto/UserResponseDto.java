@@ -1,6 +1,13 @@
 package eg.alrawi.alrawi_award.dto;
 
-public class UserResponseDto {
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serializable;
+
+@Setter
+@Getter
+public class UserResponseDto implements Serializable {
 
     private String email;
     private String nationalId;

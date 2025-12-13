@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 public class RegisterDto {
 
-    private String username;
     private String password;
 
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", message = "Invalid email format")

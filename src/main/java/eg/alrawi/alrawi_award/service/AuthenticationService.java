@@ -6,6 +6,7 @@ import eg.alrawi.alrawi_award.dto.RegisterDto;
 import eg.alrawi.alrawi_award.dto.UserResponseDto;
 import eg.alrawi.alrawi_award.entity.AlrawiUser;
 import eg.alrawi.alrawi_award.entity.UserImage;
+import eg.alrawi.alrawi_award.error.BusinessException;
 import eg.alrawi.alrawi_award.mapper.UserMapper;
 import eg.alrawi.alrawi_award.model.ImageType;
 import eg.alrawi.alrawi_award.model.Role;
@@ -46,42 +47,46 @@ public class AuthenticationService {
 
     public ApiResponseDto<?> registerUser(RegisterDto registerRequest) {
 
-        List<String> errors = new ArrayList<>();
+        UserResponseDto userResponseDto=null;
      try {
          AlrawiUser user = userMapper.mapUser(registerRequest);
+         user.setUsername(registerRequest.getEmail());
+         user.setRole(Role.ROLE_USER);
 
          if (registerRequest.getNationalId() != null) {
-             boolean isNationalIdExist = checkIfNationalIsExist(registerRequest.getEmail());
+             boolean isNationalIdExist = checkIfNationalIsExist(registerRequest.getNationalId());
              if (isNationalIdExist)
-                     errors.add("National ID is already exist");
+                    throw new BusinessException("National ID already exist");
          }else if (registerRequest.getPassportNumber()!=null) {
              boolean isPassPortExist=checkIfPassportIsExist(registerRequest.getPassportNumber());
              if (isPassPortExist)
-                 errors.add("Passport number is already exist");
+                throw new BusinessException("Passport number is already exist");
          }
          boolean isMailExists=checkIfEmailIsExist(registerRequest.getEmail());
          if (isMailExists)
-                errors.add("Email is already exist");
+             throw new BusinessException("Email is already exist");
 
-         user.setRole(Role.ROLE_USER);
          if(registerRequest.getNationalId() !=null)
            user.setGender(extractGender(registerRequest.getNationalId()));
+
          user.setAlrawiUserImages(getUserImages(registerRequest, user));
          user.setUsername(registerRequest.getEmail());
          user.setDateOfBirth(extractBirthDateFormatted(registerRequest.getNationalId()));
-         if (errors.isEmpty()) {
+
              userRepository.save(user);
              uploadUserImages(registerRequest);
-             UserResponseDto userResponseDto=userMapper.mapUserDto(user);
-             return  ApiResponseDto.success(userResponseDto,"SUCCESS");
-         }
+              userResponseDto=userMapper.mapUserDto(user);
 
 
-     }catch (Exception e){
+     }catch (BusinessException businessException){
+         log.error("upload project failed (businessException) ",businessException);
+         return ApiResponseDto.businessException(List.of(businessException.getMessage()));
+     }
+     catch (Exception e){
          log.error("Error while registering user {}",registerRequest.getEmail(),e);
      }
 
-        return ApiResponseDto.error(errors,"FAIL");
+        return  ApiResponseDto.success(userResponseDto,"SUCCESS");
 
     }
 

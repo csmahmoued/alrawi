@@ -19,7 +19,8 @@ import java.io.IOException;
 public class FileService {
 
     private final Logger log= LoggerFactory.getLogger(FileService.class);
-
+    private final static String bucketName="alrawi-awards";
+    private final static String bucketPrefix="uploads/";
     private final S3Client s3Client;
 
     public FileService(S3Client s3Client) {
@@ -29,16 +30,16 @@ public class FileService {
     public void uploadFile(MultipartFile file,String key) throws IOException {
 
     try {
-        s3Client.putObject(PutObjectRequest.builder()
 
-                        .bucket("ets-media")
-                        .key("Al_RAWI/"+key+getExtension(file))
+        s3Client.putObject(PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(bucketPrefix+key+"."+getExtension(file))
                         .build(),
                 RequestBody.fromBytes(file.getBytes()));
 
-    }catch (Exception e){
-        log.info("error ",e);
-    }
+        }catch (Exception e){
+            log.info("an error has been occurred while upload image  ",e);
+        }
     }
 
     public byte[] downloadFile(String key){

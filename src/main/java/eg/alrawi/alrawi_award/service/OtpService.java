@@ -113,6 +113,7 @@ public class OtpService {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(otpVerifyDto.getEmail(), otpVerifyDto.getOtp()));
             } catch (Exception e) {
                 log.info("An error occurred while validating an OTP ", e);
+                return ApiResponseDto.error(List.of("Invalid OTP"), "FAIL");
             }
             String token = jwtService.generateToken(alrawiUser);
             LoginResponse loginResponse = new LoginResponse(token);
@@ -125,7 +126,7 @@ public class OtpService {
     private Email getEmail(String userEmail, String otp) {
         Email email = new Email();
         email.setTo(userEmail);
-        email.setSubject("AlRawi");
+        email.setSubject("AlRawi-Awards");
         email.setFromEmail("mahmoud.eamohamed@outlook.com");
         email.setFrom("mahmoud.eamohamed@outlook.com");
         email.setTemplateName("email_template_alrawi.ftl");
