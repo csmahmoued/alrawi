@@ -1,5 +1,7 @@
 package eg.alrawi.alrawi_award.utils;
 
+import org.springframework.lang.NonNull;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +17,7 @@ public class ProgressInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read(byte[] b, int off, int len) throws IOException {
+    public int read(@NonNull byte[] b, int off, int len) throws IOException {
         int bytesRead = super.read(b, off, len);
         if (bytesRead > 0) {
             totalRead += bytesRead;
