@@ -23,7 +23,7 @@ public class CategoryController {
 
     @GetMapping("/categories")
     public ResponseEntity<?> getAllCategories(){
-      ApiResponseDto<List<CategoryDto>> categoryResponse= categoryService.getAllCategoires();
+      ApiResponseDto<List<CategoryDto>> categoryResponse= categoryService.getAllCategories();
       if (categoryResponse.isStatus())
             return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
       else

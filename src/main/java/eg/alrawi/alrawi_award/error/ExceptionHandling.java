@@ -25,7 +25,8 @@ public class ExceptionHandling extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<?> handleApiException(BaseException ex, WebRequest request) {
-        return new ResponseEntity<>(ApiResponseDto.error(List.of(ex.getMessage()), request.getDescription(false)), ex.getStatusCode());
+        log.info("ExceptionHandling: handleApiException {} ",request.getDescription(false));
+        return new ResponseEntity<>(ApiResponseDto.error(List.of(ex.getMessage())), ex.getStatusCode());
     }
 
 
@@ -36,7 +37,7 @@ public class ExceptionHandling extends ResponseEntityExceptionHandler {
                 .stream()
                 .map(FieldError::getDefaultMessage)
                 .toList();
-        return ResponseEntity.badRequest().body(ApiResponseDto.error(errors, "Validation failed"));
+        return ResponseEntity.badRequest().body(ApiResponseDto.error(errors));
     }
 
     @ExceptionHandler(RuntimeException.class)

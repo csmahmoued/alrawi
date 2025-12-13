@@ -15,6 +15,7 @@ public class AlrawiProject {
     private Long projectId;
 
     private String projectTitle;
+
     private String projectDescription;
 
    @ManyToOne(cascade = CascadeType.ALL)
@@ -24,6 +25,10 @@ public class AlrawiProject {
    @ManyToOne(cascade = CascadeType.ALL)
    @JoinColumn(name = "user_id")
    private AlrawiUser alrawiUser;
+
+   private String projectStatus;
+
+   private String projectKey;
 
 
    @OneToMany(mappedBy = "alrawiProject",fetch = FetchType.EAGER, cascade = CascadeType.ALL)

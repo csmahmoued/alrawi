@@ -11,15 +11,9 @@ import eg.alrawi.alrawi_award.mapper.UserMapper;
 import eg.alrawi.alrawi_award.model.ImageType;
 import eg.alrawi.alrawi_award.model.Role;
 import eg.alrawi.alrawi_award.repository.UserRepository;
-import eg.alrawi.alrawi_award.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.S3AsyncClient;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,18 +26,9 @@ import static eg.alrawi.alrawi_award.utils.NationalUtils.extractGender;
 @Slf4j
 public class AuthenticationService {
 
-    private final S3AsyncClient s3AsyncClient;
-    private final PasswordEncoder passwordEncoder;
     private  final UserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-    private final PresignedUrlService presignedUrlService;
     private final FileService fileService;
-
-
     private final UserMapper userMapper;
-  //  private final  S3TransferManager transferManager;
-
 
     public ApiResponseDto<?> registerUser(RegisterDto registerRequest) {
 
@@ -103,7 +88,7 @@ public class AuthenticationService {
     }
 
 
-    private void uploadUserImages(RegisterDto registerRequest) throws IOException {
+    private void uploadUserImages(RegisterDto registerRequest)  {
         if (registerRequest.getNationalId()!=null) {
             log.info("upload National Id : {}", registerRequest.getNationalId());
             fileService.uploadFile(registerRequest.getNationalImgFront(), registerRequest.getNationalId()+"_"+ImageType.FRONT_ID);
@@ -141,77 +126,4 @@ public class AuthenticationService {
 
 
     }
-
-    public static String getUsername(String email) {
-        return email.substring(0, email.indexOf('@'));
-    }
-
-
-
-
-    /*
-
-    public void uploadNationalImg(RegisterDto registerRequest){
-
-
-
-
-
-        // Use it with TransferManager
-     //   S3TransferManager transferManager = S3TransferManager.builder()
-        //        .s3Client(s3AsyncClient)
-           //     .build();
-
-        // Files to upload
-        List<Path> files = List.of(
-                Path.of("C:/uploads/test.png")
-        );
-
-        // Upload concurrently
-        List<CompletableFuture<CompletedFileUpload>> uploads = files.stream()
-                .map(file -> {
-                    UploadFileRequest uploadRequest = UploadFileRequest.builder()
-                            .putObjectRequest(PutObjectRequest.builder()
-                                    .bucket("ets-media")
-                                    .key("Al_RAWI/" + file.getFileName().toString())
-                                    .build())
-                            .source(file)
-                            .addTransferListener(LoggingTransferListener.create())
-                            .build();
-
-                    FileUpload upload = transferManager.uploadFile(uploadRequest);
-                    return upload.completionFuture();
-                })
-                .toList();
-
-        // Wait for all uploads
-        uploads.forEach(CompletableFuture::join);
-
-        transferManager.close();
-        System.out.println(" All files uploaded successfully!");
-
-    }
-
-
-
-    public LoginResponse signin(SigningRequest signinRequest){
-
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getUsername(),signinRequest.getPassword()));
-       AlrawiUser alrawiUser= userRepository.findByUsername(signinRequest.getUsername()).orElseThrow(()->new IllegalArgumentException("Invalid Username or Password"));
-       String token = jwtService.generateToken(alrawiUser);
-       String refreshToken = jwtService.generateRefreshToken(new HashMap<>(),alrawiUser);
-
-        LoginResponse loginResponse=new LoginResponse();
-        loginResponse.setToke(token);
-
-
-        return loginResponse;
-
-
-    }
-
-*/
-
-
-
 }

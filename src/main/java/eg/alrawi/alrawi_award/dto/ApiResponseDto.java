@@ -15,7 +15,6 @@ public class ApiResponseDto<T> {
     private List<String> errors;
     private LocalDateTime timestamp;
 
-    public ApiResponseDto() {}
 
     public ApiResponseDto(boolean success, String message, T responseBody, List<String> errors) {
         this.status = success;
@@ -29,7 +28,7 @@ public class ApiResponseDto<T> {
         return new ApiResponseDto<>(true, message, data, null);
     }
 
-    public static <T> ApiResponseDto<T> error(List<String> errors, String message) {
+    public static <T> ApiResponseDto<T> error(List<String> errors) {
         return new ApiResponseDto<>(false, "FAIL", null, errors);
     }
 

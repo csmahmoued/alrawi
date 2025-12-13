@@ -70,7 +70,7 @@ public class PresignedUrlService {
     }
 
 
-    public String generateUploadLink(String contentName) {
+    public String generateVideoUploadLink(String contentName) {
 
         String link = "";
 

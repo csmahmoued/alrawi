@@ -28,13 +28,13 @@ public class RegisterDto {
     @Passport
     private String passportNumber;
 
-    @ValidImage(maxSize = 5 * 1024 * 1024, allowedTypes = { "image/jpeg", "image/png" ,"image/jpg" }, message = "File must be a valid image (JPEG/PNG) under 5 MB")
+    @ValidImage
     private MultipartFile nationalImgFront;
 
-    @ValidImage(maxSize = 5 * 1024 * 1024, allowedTypes = { "image/jpeg", "image/png" ,"image/jpg" }, message = "File must be a valid image (JPEG/PNG) under 5 MB")
+    @ValidImage
     private MultipartFile nationalImgBack;
 
-    @ValidImage(maxSize = 5 * 1024 * 1024, allowedTypes = { "image/jpeg", "image/png" ,"image/jpg" }, message = "File must be a valid image (JPEG/PNG) under 5 MB")
+    @ValidImage
     private MultipartFile passportImg;
 
 }

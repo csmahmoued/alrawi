@@ -53,7 +53,7 @@ public class AlrawiUser implements UserDetails {
     @OneToMany(mappedBy = "alrawiUser",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserImage> alrawiUserImages;
 
-    @OneToMany(mappedBy = "alrawiUser",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "alrawiUser",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<AlrawiProject> projects;
 
 

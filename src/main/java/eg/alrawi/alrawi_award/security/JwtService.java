@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
-import java.util.Map;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -61,26 +60,4 @@ public class JwtService {
         return extractClaims(token,Claims::getExpiration).before(new Date());
     }
 
-
-    public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(expiration)))
-                .signWith(getSiginKey(), SignatureAlgorithm.HS256)
-                .compact();
-
-    }
-
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(expiration)))
-                .signWith(getSiginKey(), SignatureAlgorithm.HS256)
-                .compact();
-
-    }
 }

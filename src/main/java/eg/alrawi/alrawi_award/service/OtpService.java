@@ -44,7 +44,7 @@ public class OtpService {
         try {
             AlrawiUser alrawiUser = userRepository.findByEmail(userEmail).orElse(null);
             if (alrawiUser == null)
-                return ApiResponseDto.error(List.of("user not found"), "FAIL");
+                return ApiResponseDto.error(List.of("user not found"));
 
             String otp = generateOtp();
             Email email = getEmail(userEmail, otp);
@@ -52,7 +52,7 @@ public class OtpService {
             mailService.sendMail(email);
         } catch (Exception e) {
             log.info("An error occurred while sending an OTP ", e);
-            return ApiResponseDto.error(List.of("An error occurred while sending an OTP"), "FAILED");
+            return ApiResponseDto.error(List.of("An error occurred while sending an OTP"));
         }
 
         return ApiResponseDto.success("Successfully sent an OTP please check your mail NOTE: Can’t find your code? Be sure to check your spam/junk folder.", "SUCCESS");
@@ -105,7 +105,7 @@ public class OtpService {
         if (valid) {
             AlrawiUser alrawiUser = userRepository.findByEmail(otpVerifyDto.getEmail()).orElse(null);
             if (alrawiUser == null)
-                return ApiResponseDto.error(List.of("FAIL"), "user not found");
+                return ApiResponseDto.error(List.of("user not found"));
 
             try {
                 alrawiUser.setPassword(passwordEncoder.encode(otpVerifyDto.getOtp()));
@@ -113,13 +113,13 @@ public class OtpService {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(otpVerifyDto.getEmail(), otpVerifyDto.getOtp()));
             } catch (Exception e) {
                 log.info("An error occurred while validating an OTP ", e);
-                return ApiResponseDto.error(List.of("Invalid OTP"), "FAIL");
+                return ApiResponseDto.error(List.of("Invalid OTP"));
             }
             String token = jwtService.generateToken(alrawiUser);
             LoginResponse loginResponse = new LoginResponse(token);
             return ApiResponseDto.success(loginResponse, "OTP is valid ");
         } else
-            return ApiResponseDto.error(List.of("Invalid OTP"), "FAIL");
+            return ApiResponseDto.error(List.of("Invalid OTP"));
     }
 
 
