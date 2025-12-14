@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Date;
+import java.time.Instant;
+
 
 @Table
 @Entity
@@ -22,6 +23,5 @@ public class FileStatus {
     private String  duration;
 
     @CreationTimestamp
-    @Column(updatable = false)
-    private Date createdAt;
+    private Instant createAt;
 }
