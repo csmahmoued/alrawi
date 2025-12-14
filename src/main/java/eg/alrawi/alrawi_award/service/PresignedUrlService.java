@@ -58,7 +58,7 @@ public class PresignedUrlService {
                     .build();
 
             PresignedPutObjectRequest presigned = presigner.presignPutObject(
-                    b -> b.signatureDuration(Duration.ofMinutes(10))
+                    b -> b.signatureDuration(Duration.ofMinutes(70))
                             .putObjectRequest(objectRequest)
             );
 
