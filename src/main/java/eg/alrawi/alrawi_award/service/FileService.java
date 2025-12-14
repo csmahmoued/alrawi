@@ -37,7 +37,7 @@ public class FileService {
 
         s3Client.putObject(PutObjectRequest.builder()
                         .bucket(bucketName)
-                        .key(bucketPrefix.replaceAll("\\s+","_")+"/"+key+"."+getExtension(file))
+                        .key(bucketPrefix.replaceAll("\\s+","_")+"/"+key.replaceAll("\\s+","_")+"."+getExtension(file))
                         .build(),
                 RequestBody.fromBytes(file.getBytes()));
 

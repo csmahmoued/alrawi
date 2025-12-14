@@ -93,11 +93,14 @@ public class ProjectContentService {
         alrawiProject.setAlrawiCategory(alrawiCategory);
         alrawiProject.setProjectTitle(projectContentDto.getProjectTitle());
         alrawiProject.setProjectDescription(projectContentDto.getProjectDescription());
-        alrawiProject.setProjectKey(alrawiUser.getNationalId()+"_"+ alrawiCategory.getCategoryId()+"_"+ alrawiCategory.getCategoryName());
+        alrawiProject.setProjectKey(buildKey(alrawiUser,alrawiCategory));
         alrawiProject.setProjectStatus("PENDING");
         return alrawiProject;
     }
 
+    private static String buildKey(AlrawiUser alrawiUser, AlrawiCategory alrawiCategory) {
+        return alrawiUser.getNationalId()+"_"+ alrawiCategory.getCategoryId()+"_"+ alrawiCategory.getCategoryName().replaceAll("\\s+","_");
+    }
 
     private String uploadProjectContents(AlrawiProject alrawiProject,ProjectContentDto projectContentDto,AlrawiUser alrawiUser)  {
 
@@ -105,7 +108,7 @@ public class ProjectContentService {
 
         switch (alrawiProject.getAlrawiCategory().getCategoryName()){
             case "Photography":
-                log.info("Uploading Photography Project Number of Photos  ");
+                log.info("Uploading Photography");
                 List<MultipartFile> projectImages=projectContentDto.getImgFile();
                 if (projectImages.size()>10)
                     throw new BusinessException("Upload image size must be less than 10");
@@ -116,7 +119,7 @@ public class ProjectContentService {
                fileService.uploadFile(buildPrefix(alrawiUser),projectContentDto.getScriptFile(),alrawiProject.getProjectKey());
             break;
             default:
-                uploadProjectUrl = presignedUrlService.generateVideoUploadLink(buildPrefix(alrawiUser),alrawiProject.getProjectKey());
+                uploadProjectUrl = presignedUrlService.generateVideoUploadLink(buildPrefix(alrawiUser),alrawiProject.getProjectKey().replaceAll("//#","_"));
                 log.info("upload video url : {} ",uploadProjectUrl);
                 break;
         }
