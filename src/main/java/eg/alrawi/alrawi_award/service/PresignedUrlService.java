@@ -77,11 +77,11 @@ public class PresignedUrlService {
             PutObjectRequest objectRequest = PutObjectRequest.builder()
                     .bucket("alrawi-awards")
                     .key(prefix+"/"+contentName)
-                    .contentType("video/mp4 ")
+                    .contentType("video/mp4")
                     .build();
 
             PresignedPutObjectRequest presigned = presigner.presignPutObject(
-                    b -> b.signatureDuration(Duration.ofMinutes(2))
+                    b -> b.signatureDuration(Duration.ofMinutes(70))
                             .putObjectRequest(objectRequest)
             );
             link=presigned.url().toString();
