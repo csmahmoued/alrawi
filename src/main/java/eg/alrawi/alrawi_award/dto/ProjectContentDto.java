@@ -1,5 +1,7 @@
 package eg.alrawi.alrawi_award.dto;
 
+import eg.alrawi.alrawi_award.annotations.ValidImage;
+import eg.alrawi.alrawi_award.annotations.ValidPdf;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -16,10 +18,11 @@ public class ProjectContentDto {
     private String projectTitle;
     private String projectDescription;
 
-    @Size(max = 10, message = "max upload images is 10")
-    @Valid
-    private List<FileDto> uploads;
+    @ValidPdf
+    private MultipartFile scriptFile;
 
-    private MultipartFile file;
+    @Valid
+    @Size(max = 10, message = "max upload images is 10")
+    private List<@ValidImage MultipartFile> imgFile;
 
 }

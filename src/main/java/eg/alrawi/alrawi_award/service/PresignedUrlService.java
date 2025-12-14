@@ -70,13 +70,13 @@ public class PresignedUrlService {
     }
 
 
-    public String generateVideoUploadLink(String contentName) {
+    public String generateVideoUploadLink(String prefix,String contentName) {
 
         String link = "";
 
             PutObjectRequest objectRequest = PutObjectRequest.builder()
                     .bucket("alrawi-awards")  //ets-media
-                    .key("uploads/"+contentName)   //Al_RAWI/
+                    .key(prefix+"/"+contentName)   //Al_RAWI/
                     .contentType("video/mp4 ")
                     .build();
 

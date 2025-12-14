@@ -23,7 +23,7 @@ public class CategoryService {
         try{
             List<AlrawiCategory>  categories = categoryRepository.findAll();
            if(categories.isEmpty())
-                return ApiResponseDto.error(List.of("No Categoy Found "));
+                return ApiResponseDto.error(List.of("No Category Found "));
 
             List<CategoryDto> categoryDTOs= categoryMapper.mapCategory(categories);
 

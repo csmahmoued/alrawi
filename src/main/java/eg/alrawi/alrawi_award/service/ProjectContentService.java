@@ -1,7 +1,6 @@
 package eg.alrawi.alrawi_award.service;
 
 import eg.alrawi.alrawi_award.dto.ApiResponseDto;
-import eg.alrawi.alrawi_award.dto.FileDto;
 import eg.alrawi.alrawi_award.dto.ProjectContentDto;
 import eg.alrawi.alrawi_award.dto.UploadProjectResponseDto;
 import eg.alrawi.alrawi_award.entity.AlrawiCategory;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,9 +55,9 @@ public class ProjectContentService {
 
          projectRepository.save(alrawiProject);
 
-         uploadProjectContents(alrawiProject,projectContentDto);
+         uploadProjectContents(alrawiProject,projectContentDto,alrawiUser);
 
-         String uploadUrl = uploadProjectContents(alrawiProject,projectContentDto);
+         String uploadUrl = uploadProjectContents(alrawiProject,projectContentDto,alrawiUser);
          uploadProjectResponseDto.setUploadUrl(uploadUrl);
          uploadProjectResponseDto.setProjectName(alrawiProject.getProjectTitle());
 
@@ -101,27 +99,33 @@ public class ProjectContentService {
     }
 
 
-    private String uploadProjectContents(AlrawiProject alrawiProject,ProjectContentDto projectContentDto)  {
+    private String uploadProjectContents(AlrawiProject alrawiProject,ProjectContentDto projectContentDto,AlrawiUser alrawiUser)  {
 
         String uploadProjectUrl="";
-        if (alrawiProject.getAlrawiCategory().getCategoryName().equalsIgnoreCase("Photography")) {
-            log.info("Uploading Photography Project Number of Photos {} ",projectContentDto.getUploads().size());
-            List<MultipartFile> projectImages=new  ArrayList<>();
-            for (FileDto fileDto : projectContentDto.getUploads()) {
-                projectImages.add(fileDto.getFile());
-            }
-              fileService.uploadArchiveToS3(alrawiProject.getProjectKey(),projectImages);
-        }else if (alrawiProject.getAlrawiCategory().getCategoryName().equalsIgnoreCase("Scriptwriting")) {
-             log.info("upload file {} ",projectContentDto.getFile().getContentType());
-             fileService.uploadFile(projectContentDto.getFile(),alrawiProject.getProjectKey());
-        }
-        else{
-            uploadProjectUrl = presignedUrlService.generateVideoUploadLink(alrawiProject.getProjectKey());
-            log.info("upload video url : {} ",uploadProjectUrl);
+
+        switch (alrawiProject.getAlrawiCategory().getCategoryName()){
+            case "Photography":
+                log.info("Uploading Photography Project Number of Photos {} ",projectContentDto.getImgFile().size());
+                List<MultipartFile> projectImages=projectContentDto.getImgFile();
+                if (projectImages.size()>10)
+                    throw new BusinessException("Upload image size must be less than 10");
+                fileService.uploadArchiveToS3(buildPrefix(alrawiUser),alrawiProject.getProjectKey(),projectImages);
+                break;
+           case "Scriptwriting":
+               log.info("upload file {} ",projectContentDto.getScriptFile().getContentType());
+               fileService.uploadFile(buildPrefix(alrawiUser),projectContentDto.getScriptFile(),alrawiProject.getProjectKey());
+            break;
+            default:
+                uploadProjectUrl = presignedUrlService.generateVideoUploadLink(buildPrefix(alrawiUser),alrawiProject.getProjectKey());
+                log.info("upload video url : {} ",uploadProjectUrl);
+                break;
         }
 
         return uploadProjectUrl;
+    }
 
+    private String buildPrefix(AlrawiUser alrawiUser) {
+        return alrawiUser.getFullName()+"_"+alrawiUser.getMobileNumber();
     }
 
 }

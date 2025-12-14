@@ -13,6 +13,7 @@ public class UserResponseDto implements Serializable {
     private String email;
     private String nationalId;
     private String passportNumber;
+    private String mobileNumber;
     private String fullName;
     private String city;
     private String government;

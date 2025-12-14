@@ -89,7 +89,7 @@ public class AuthenticationService {
                 throw new UsernameNotFoundException("Username Not Found");
 
             UserResponseDto userResponseDto =userMapper.mapUserDto(user);
-          //  userResponseDto.setProjects();
+
 
             return  ApiResponseDto.success(userResponseDto,"SUCCESS");
 
@@ -121,17 +121,14 @@ public class AuthenticationService {
         if (registerRequest.getFullName() != null)
             user.setFullName(registerRequest.getFullName());
 
-        if (registerRequest.getNationalId() != null)
-            user.setNationalId(registerRequest.getNationalId());
 
         if (registerRequest.getEmail() != null)
             user.setEmail(registerRequest.getEmail());
 
-        if (registerRequest.getPassportNumber() != null)
-            user.setPassportNumber(registerRequest.getPassportNumber());
+        if (registerRequest.getMobileNumber() != null)
+            user.setMobileNumber(registerRequest.getMobileNumber());
 
-        if (registerRequest.getNationalId() != null)
-            user.setNationalId(registerRequest.getNationalId());
+
 
         user=userRepository.save(user);
         UserResponseDto userResponseDto =userMapper.mapUserDto(user)  ;
@@ -164,11 +161,11 @@ public class AuthenticationService {
     private void uploadUserImages(RegisterDto registerRequest)  {
         if (registerRequest.getNationalId()!=null) {
             log.info("upload National Id : {}", registerRequest.getNationalId());
-            fileService.uploadFile(registerRequest.getNationalImgFront(), registerRequest.getNationalId()+"_"+ImageType.FRONT_ID);
-            fileService.uploadFile(registerRequest.getNationalImgBack(), registerRequest.getNationalId()+"_"+ImageType.BACK_ID);
+            fileService.uploadFile(registerRequest.getFullName()+"_"+registerRequest.getMobileNumber(),registerRequest.getNationalImgFront(), registerRequest.getNationalId()+"_"+ImageType.FRONT_ID);
+            fileService.uploadFile(registerRequest.getFullName()+"_"+registerRequest.getMobileNumber(),registerRequest.getNationalImgBack(), registerRequest.getNationalId()+"_"+ImageType.BACK_ID);
         }else {
             log.info("upload passport Id : {}", registerRequest.getPassportNumber());
-            fileService.uploadFile(registerRequest.getNationalImgBack(), registerRequest.getPassportNumber()+"_"+ImageType.PASSPORT);
+            fileService.uploadFile(registerRequest.getFullName()+"_"+registerRequest.getMobileNumber(),registerRequest.getNationalImgBack(), registerRequest.getPassportNumber()+"_"+ImageType.PASSPORT);
         }
     }
 

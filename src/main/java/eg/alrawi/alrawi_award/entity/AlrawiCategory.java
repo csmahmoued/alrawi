@@ -19,6 +19,8 @@ public class AlrawiCategory {
 
     private String categoryDescription;
 
+    private String categoryContentType;
+
     @OneToMany(mappedBy = "alrawiCategory",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<AlrawiProject> projects;
 

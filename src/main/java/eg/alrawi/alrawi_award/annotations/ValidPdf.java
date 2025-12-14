@@ -1,21 +1,17 @@
 package eg.alrawi.alrawi_award.annotations;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
-
 @Documented
-@Constraint(validatedBy = ImageValidator.class)
+@Constraint(validatedBy = PdfFileValidator.class)
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE_USE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidImage {
+public @interface ValidPdf {
 
-    String message() default "File must be a valid image (JPEG/PNG) under 5 MB";
-
-    long maxSize() default 5 * 1024 * 1024; // default 5 MB
-
-    String[] allowedTypes() default { "image/jpeg", "image/png", "image/jpg" };
+    String message() default "File must be a PDF and ≤ 15MB";
 
     Class<?>[] groups() default {};
 

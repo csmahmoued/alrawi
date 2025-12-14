@@ -25,20 +25,19 @@ public class FileService {
 
     private final Logger log= LoggerFactory.getLogger(FileService.class);
     private final static String bucketName="alrawi-awards";
-    private final static String bucketPrefix="uploads/";
     private final S3Client s3Client;
 
     public FileService(S3Client s3Client) {
         this.s3Client = s3Client;
     }
 
-    public void uploadFile(MultipartFile file,String key)  {
+    public void uploadFile(String bucketPrefix,MultipartFile file,String key)  {
 
     try {
 
         s3Client.putObject(PutObjectRequest.builder()
                         .bucket(bucketName)
-                        .key(bucketPrefix+key+"."+getExtension(file))
+                        .key(bucketPrefix.replaceAll("\\s+","_")+"/"+key+"."+getExtension(file))
                         .build(),
                 RequestBody.fromBytes(file.getBytes()));
 
@@ -96,7 +95,7 @@ public class FileService {
 
 
 
-    public void uploadArchiveToS3(String key,List<MultipartFile> images) {
+    public void uploadArchiveToS3(String prefix,String key,List<MultipartFile> images) {
 
      try {
 
@@ -104,7 +103,7 @@ public class FileService {
 
          PutObjectRequest request = PutObjectRequest.builder()
                  .bucket(bucketName)
-                 .key(bucketPrefix+key)
+                 .key(prefix+"/"+key)
                  .contentType("application/zip")
                  .contentLength(archiveStream.length())
                  .build();
