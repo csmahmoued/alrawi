@@ -1,7 +1,6 @@
 package eg.alrawi.alrawi_award.service;
 
 
-import eg.alrawi.alrawi_award.utils.ProgressInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -72,16 +72,21 @@ public class FileService {
     private File compressImagesToArchiveFile(List<MultipartFile> images) throws IOException {
 
         File tempZip = File.createTempFile("images-", ".zip");
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tempZip))) {
+
+        try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(tempZip)))) {
+
+            byte[] buffer = new byte[16 * 1024];
+
             for (MultipartFile image : images) {
-                ZipEntry entry = new ZipEntry(Objects.requireNonNull(image.getOriginalFilename()));
+
+                String fileName = Objects.requireNonNullElse(image.getOriginalFilename(), UUID.randomUUID() + ".bin");
+                ZipEntry entry = new ZipEntry(fileName);
                 zos.putNextEntry(entry);
 
-                try (InputStream is = new ProgressInputStream(image.getInputStream(), image.getOriginalFilename())) {
-                    byte[] buffer = new byte[16 * 1024];
-                    int len;
-                    while ((len = is.read(buffer)) != -1) {
-                        zos.write(buffer, 0, len);
+                try (InputStream is = new BufferedInputStream(image.getInputStream())) {
+                    int bytesRead;
+                    while ((bytesRead = is.read(buffer)) != -1) {
+                        zos.write(buffer, 0, bytesRead);
                     }
                 }
 
@@ -91,7 +96,6 @@ public class FileService {
 
         return tempZip;
     }
-
 
 
 
@@ -109,6 +113,7 @@ public class FileService {
                  .build();
 
          s3Client.putObject(request, RequestBody.fromFile(archiveStream));
+         archiveStream.deleteOnExit();
 
          if (archiveStream.delete())
             log.info("Temporary ZIP file deleted successfully.");

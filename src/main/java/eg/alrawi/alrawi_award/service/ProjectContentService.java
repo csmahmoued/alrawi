@@ -105,7 +105,7 @@ public class ProjectContentService {
 
         switch (alrawiProject.getAlrawiCategory().getCategoryName()){
             case "Photography":
-                log.info("Uploading Photography Project Number of Photos {} ",projectContentDto.getImgFile().size());
+                log.info("Uploading Photography Project Number of Photos  ");
                 List<MultipartFile> projectImages=projectContentDto.getImgFile();
                 if (projectImages.size()>10)
                     throw new BusinessException("Upload image size must be less than 10");
