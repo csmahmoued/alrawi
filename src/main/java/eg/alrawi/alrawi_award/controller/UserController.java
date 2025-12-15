@@ -1,7 +1,7 @@
 package eg.alrawi.alrawi_award.controller;
 
 import eg.alrawi.alrawi_award.dto.ApiResponseDto;
-import eg.alrawi.alrawi_award.dto.RegisterDto;
+import eg.alrawi.alrawi_award.dto.UpdateUserDto;
 import eg.alrawi.alrawi_award.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,8 @@ public class UserController {
     private final AuthenticationService authenticationService;
 
     @PutMapping("/user")
-    public ResponseEntity<?> updateUser(@Valid @ModelAttribute RegisterDto  registerDto){
-        ApiResponseDto<?> apiResponseDto= authenticationService.updateUser(registerDto);
+    public ResponseEntity<?> updateUser(@Valid @RequestBody UpdateUserDto updateUserDto){
+        ApiResponseDto<?> apiResponseDto= authenticationService.updateUser(updateUserDto);
         if (apiResponseDto.isStatus())
             return new ResponseEntity<>(apiResponseDto, HttpStatus.OK);
         else

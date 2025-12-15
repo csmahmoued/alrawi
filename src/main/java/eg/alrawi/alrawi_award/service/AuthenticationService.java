@@ -3,6 +3,7 @@ package eg.alrawi.alrawi_award.service;
 
 import eg.alrawi.alrawi_award.dto.ApiResponseDto;
 import eg.alrawi.alrawi_award.dto.RegisterDto;
+import eg.alrawi.alrawi_award.dto.UpdateUserDto;
 import eg.alrawi.alrawi_award.dto.UserResponseDto;
 import eg.alrawi.alrawi_award.entity.AlrawiUser;
 import eg.alrawi.alrawi_award.entity.UserImage;
@@ -103,7 +104,7 @@ public class AuthenticationService {
     }
 
 
-    public ApiResponseDto<?> updateUser(RegisterDto registerRequest){
+    public ApiResponseDto<?> updateUser(UpdateUserDto updateUserDto) {
 
     try {
 
@@ -112,23 +113,21 @@ public class AuthenticationService {
         if (user == null)
             throw new UsernameNotFoundException("Username Not Found");
 
-        if (registerRequest.getCity() != null)
-            user.setCity(registerRequest.getCity());
+        if (updateUserDto.getCity() != null)
+            user.setCity(updateUserDto.getCity());
 
-        if (registerRequest.getGovernment() != null)
-            user.setGovernment(registerRequest.getGovernment());
+        if (updateUserDto.getGovernment() != null)
+            user.setGovernment(updateUserDto.getGovernment());
 
-        if (registerRequest.getFullName() != null)
-            user.setFullName(registerRequest.getFullName());
-
-
-        if (registerRequest.getEmail() != null)
-            user.setEmail(registerRequest.getEmail());
-
-        if (registerRequest.getMobileNumber() != null)
-            user.setMobileNumber(registerRequest.getMobileNumber());
+        if (updateUserDto.getFullName() != null)
+            user.setFullName(updateUserDto.getFullName());
 
 
+        if (updateUserDto.getEmail() != null)
+            user.setEmail(updateUserDto.getEmail());
+
+        if (updateUserDto.getMobileNumber() != null)
+            user.setMobileNumber(updateUserDto.getMobileNumber());
 
         user=userRepository.save(user);
         UserResponseDto userResponseDto =userMapper.mapUserDto(user)  ;
@@ -138,7 +137,7 @@ public class AuthenticationService {
         return ApiResponseDto.businessException(List.of(businessException.getMessage()));
 
     }catch (Exception e){
-        log.error("Error while updating user {}",registerRequest.getEmail(),e);
+        log.error("Error while updating user {}",updateUserDto.getEmail(),e);
         return ApiResponseDto.businessException(List.of(e.getMessage()));
 
     }
