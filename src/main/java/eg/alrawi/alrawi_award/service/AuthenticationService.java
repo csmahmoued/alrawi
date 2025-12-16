@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.ArrayList;
 import java.util.List;
 import static eg.alrawi.alrawi_award.utils.NationalUtils.extractBirthDateFormatted;
@@ -111,7 +113,7 @@ public class AuthenticationService {
         String userEmail = DecodedToken.getEmailFromToken(request.getHeader("Authorization").substring(7));
         AlrawiUser user = userRepository.findByEmail(userEmail).orElse(null);
         if (user == null)
-            throw new UsernameNotFoundException("Username Not Found");
+            throw new BusinessException("Username Not Found");
 
         if (updateUserDto.getCity() != null)
             user.setCity(updateUserDto.getCity());
@@ -128,6 +130,21 @@ public class AuthenticationService {
 
         if (updateUserDto.getMobileNumber() != null)
             user.setMobileNumber(updateUserDto.getMobileNumber());
+
+
+        UserImage userImage=user.getAlrawiUserImages().stream()
+                    .filter(type->type.getImageType().name().equalsIgnoreCase(ImageType.PERSONAL.name()))
+                    .findFirst().orElse(null);
+
+            if (userImage!=null) {
+                uploadUserPersonalImage(user, updateUserDto.getProfilePicture());
+            }
+            else {
+                userImage = new UserImage(user.getNationalId() + "_" + ImageType.PERSONAL, ImageType.FRONT_ID);
+                userImage.setAlrawiUser(user);
+                uploadUserPersonalImage(user, updateUserDto.getProfilePicture());
+            }
+
 
         user=userRepository.save(user);
         UserResponseDto userResponseDto =userMapper.mapUserDto(user)  ;
@@ -168,6 +185,14 @@ public class AuthenticationService {
         }
     }
 
+    private void uploadUserPersonalImage(AlrawiUser user, MultipartFile file) {
+        log.info("start upload user personal image ");
+        fileService.uploadFile(buildUserPrefix(user),file,user.getNationalId()+"_"+ImageType.FRONT_ID);
+    }
+
+    private String buildUserPrefix(AlrawiUser user) {
+        return user.getFullName()+"_"+user.getMobileNumber();
+    }
     private List<UserImage> getUserImages(RegisterDto registerRequest, AlrawiUser user) {
 
         List<UserImage>  userImages = new ArrayList<>();

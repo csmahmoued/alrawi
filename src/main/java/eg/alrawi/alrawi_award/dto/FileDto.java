@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 public class FileDto {
 
-
     @ValidImage
     private MultipartFile file;
 }

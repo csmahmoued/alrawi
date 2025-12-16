@@ -1,13 +1,16 @@
 package eg.alrawi.alrawi_award.dto;
-
-import jakarta.annotation.Nullable;
+import eg.alrawi.alrawi_award.annotations.ValidImage;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
-@Setter
+import java.io.Serializable;
+
 @Getter
-public class UpdateUserDto {
+@Setter
+public class UpdateUserDto implements Serializable {
 
 
     @Size( max = 50, message = "city must be between 2 and 50 characters")
@@ -27,7 +30,9 @@ public class UpdateUserDto {
     @Email(message = "Invalid email format")
     private String email;
 
-
     @Pattern(regexp = "^(\\+20|0)?1[0125][0-9]{8}$", message = "invalid mobile number ")
     private String mobileNumber;
+
+    @ValidImage
+    private MultipartFile profilePicture;
 }

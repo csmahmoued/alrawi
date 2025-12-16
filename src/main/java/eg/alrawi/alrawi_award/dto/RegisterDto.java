@@ -9,9 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.Serializable;
+
 @Setter
 @Getter
-public class RegisterDto {
+public class RegisterDto implements Serializable {
 
     private String password;
 

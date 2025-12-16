@@ -2,13 +2,16 @@ package eg.alrawi.alrawi_award.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@ToString
 @Setter
 @Getter
-public class ApiResponseDto<T> {
+public class ApiResponseDto<T> implements Serializable {
     private boolean status;
     private String message;
     private T responseBody;

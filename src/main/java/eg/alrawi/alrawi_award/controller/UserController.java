@@ -17,7 +17,7 @@ public class UserController {
     private final AuthenticationService authenticationService;
 
     @PutMapping("/user")
-    public ResponseEntity<?> updateUser(@Valid @RequestBody UpdateUserDto updateUserDto){
+    public ResponseEntity<?> updateUser(@Valid @ModelAttribute UpdateUserDto updateUserDto){
         ApiResponseDto<?> apiResponseDto= authenticationService.updateUser(updateUserDto);
         if (apiResponseDto.isStatus())
             return new ResponseEntity<>(apiResponseDto, HttpStatus.OK);
