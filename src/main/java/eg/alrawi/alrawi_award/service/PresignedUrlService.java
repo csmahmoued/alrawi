@@ -3,8 +3,11 @@ package eg.alrawi.alrawi_award.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
@@ -19,7 +22,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PresignedUrlService {
 
-    private final S3Presigner presigner;
+    private final S3Presigner s3Presigner;
+    private final static String bucketName="alrawi-awards";
+
+    public String generatePreSignedUrl(String key, long expirationMinutes) {
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(expirationMinutes))
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        PresignedGetObjectRequest presignedObject = s3Presigner.presignGetObject(presignRequest);
+
+        URL url = presignedObject.url();
+        return url.toString();
+    }
 
 
     public URL generateUploadUrl(Long userId, String fileName, String contentType) {
@@ -39,7 +61,7 @@ public class PresignedUrlService {
                 .putObjectRequest(objectRequest)
                 .build();
 
-        PresignedPutObjectRequest presigned = presigner.presignPutObject(presignRequest);
+        PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(presignRequest);
 
         return presigned.url();
     }
@@ -57,7 +79,7 @@ public class PresignedUrlService {
                     .contentType("image/png")
                     .build();
 
-            PresignedPutObjectRequest presigned = presigner.presignPutObject(
+            PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(
                     b -> b.signatureDuration(Duration.ofMinutes(70))
                             .putObjectRequest(objectRequest)
             );
@@ -70,17 +92,17 @@ public class PresignedUrlService {
     }
 
 
-    public String generateVideoUploadLink(String prefix,String contentName) {
+    public String generateVideoUploadLink(String key,String contentType) {
 
         String link = "";
 
             PutObjectRequest objectRequest = PutObjectRequest.builder()
-                    .bucket("alrawi-awards")
-                    .key(prefix+"/"+contentName)
-                    .contentType("video/mp4")
+                    .bucket(bucketName)
+                    .key(key)
+                    .contentType(contentType)
                     .build();
 
-            PresignedPutObjectRequest presigned = presigner.presignPutObject(
+            PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(
                     b -> b.signatureDuration(Duration.ofMinutes(70))
                             .putObjectRequest(objectRequest)
             );
@@ -89,6 +111,8 @@ public class PresignedUrlService {
 
         return link;
     }
+
+
 
 
 }

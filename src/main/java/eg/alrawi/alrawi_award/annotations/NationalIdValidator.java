@@ -2,11 +2,14 @@ package eg.alrawi.alrawi_award.annotations;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Set;
 
+@Slf4j
 public class NationalIdValidator implements ConstraintValidator<NationalId, String> {
 
     private static final Set<String> VALID_GOV_CODES = Set.of(
@@ -43,6 +46,7 @@ public class NationalIdValidator implements ConstraintValidator<NationalId, Stri
 
 
 
+
         try {
             YearMonth ym = YearMonth.of(fullYear, month);
             if (day < 1 || day > ym.lengthOfMonth()) {
@@ -53,6 +57,10 @@ public class NationalIdValidator implements ConstraintValidator<NationalId, Stri
         }
 
         String govCode = value.substring(7, 9);
+        int age = LocalDate.now().getYear()-fullYear;
+        if (age > 35 || age < 18) {
+            return false;
+        }
 
         return VALID_GOV_CODES.contains(govCode);
     }

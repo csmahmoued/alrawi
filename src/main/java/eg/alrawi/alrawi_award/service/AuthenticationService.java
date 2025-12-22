@@ -1,6 +1,4 @@
 package eg.alrawi.alrawi_award.service;
-
-
 import eg.alrawi.alrawi_award.dto.ApiResponseDto;
 import eg.alrawi.alrawi_award.dto.RegisterDto;
 import eg.alrawi.alrawi_award.dto.UpdateUserDto;
@@ -9,10 +7,12 @@ import eg.alrawi.alrawi_award.entity.AlrawiUser;
 import eg.alrawi.alrawi_award.entity.UserImage;
 import eg.alrawi.alrawi_award.error.BusinessException;
 import eg.alrawi.alrawi_award.mapper.UserMapper;
+import eg.alrawi.alrawi_award.model.Constants;
 import eg.alrawi.alrawi_award.model.ImageType;
 import eg.alrawi.alrawi_award.model.Role;
 import eg.alrawi.alrawi_award.repository.UserRepository;
 import eg.alrawi.alrawi_award.utils.DecodedToken;
+import eg.alrawi.alrawi_award.utils.LocalUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +20,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import static eg.alrawi.alrawi_award.utils.NationalUtils.extractBirthDateFormatted;
-import static eg.alrawi.alrawi_award.utils.NationalUtils.extractGender;
+
+import static eg.alrawi.alrawi_award.utils.NationalUtils.*;
 
 
 @Service
@@ -33,8 +34,10 @@ public class AuthenticationService {
 
     private  final UserRepository userRepository;
     private final FileService fileService;
+    private final PresignedUrlService presignedUrlService;
     private final UserMapper userMapper;
     private final HttpServletRequest request;
+    private final LocalUtils localUtils;
 
 
     public ApiResponseDto<?> registerUser(RegisterDto registerRequest) {
@@ -42,33 +45,41 @@ public class AuthenticationService {
         UserResponseDto userResponseDto=null;
      try {
          AlrawiUser user = userMapper.mapUser(registerRequest);
+
          user.setUsername(registerRequest.getEmail());
          user.setRole(Role.ROLE_USER);
 
          if (registerRequest.getNationalId() != null) {
              boolean isNationalIdExist = checkIfNationalIsExist(registerRequest.getNationalId());
              if (isNationalIdExist)
-                    throw new BusinessException("National ID already exist");
+                    throw new BusinessException(localUtils.getMessage("NATIONAL_ID_ERROR_MSG"));
+
+             user.setGender(extractGender(registerRequest.getNationalId()));
+             LocalDate localDate=extractBirthDate(registerRequest.getNationalId());
+
+             user.setDateOfBirth(extractBirthDateFormatted(registerRequest.getNationalId()));
+
          }else if (registerRequest.getPassportNumber()!=null) {
              boolean isPassPortExist=checkIfPassportIsExist(registerRequest.getPassportNumber());
              if (isPassPortExist)
-                throw new BusinessException("Passport number is already exist");
+                throw new BusinessException(localUtils.getMessage("PASSPORT_NUMBER_ERROR_MSG"));
+
+             user.setPassportNumber(registerRequest.getPassportNumber());
          }
          boolean isMailExists=checkIfEmailIsExist(registerRequest.getEmail());
          if (isMailExists)
-             throw new BusinessException("Email is already exist");
+             throw new BusinessException(localUtils.getMessage("MAIL_EXISTS_ERROR_MSG"));
 
-         if(registerRequest.getNationalId() !=null)
-           user.setGender(extractGender(registerRequest.getNationalId()));
+         if(registerRequest.getDateOfBirth()!=null)
+             user.setDateOfBirth(registerRequest.getDateOfBirth());
 
          user.setAlrawiUserImages(getUserImages(registerRequest, user));
-         user.setUsername(registerRequest.getEmail());
-         user.setDateOfBirth(extractBirthDateFormatted(registerRequest.getNationalId()));
 
-             userRepository.save(user);
-             uploadUserImages(registerRequest);
-              userResponseDto=userMapper.mapUserDto(user);
+         userRepository.save(user);
 
+        uploadUserPersonalImage(user.getAlrawiUserImages(),registerRequest);
+
+         userResponseDto=userMapper.mapUserDto(user);
 
      }catch (BusinessException businessException){
          log.error("upload project failed (businessException) ",businessException);
@@ -78,7 +89,7 @@ public class AuthenticationService {
          log.error("Error while registering user {}",registerRequest.getEmail(),e);
      }
 
-        return  ApiResponseDto.success(userResponseDto,"SUCCESS");
+        return  ApiResponseDto.success(userResponseDto, Constants.SUCCESS);
 
     }
 
@@ -94,7 +105,7 @@ public class AuthenticationService {
             UserResponseDto userResponseDto =userMapper.mapUserDto(user);
 
 
-            return  ApiResponseDto.success(userResponseDto,"SUCCESS");
+            return  ApiResponseDto.success(userResponseDto,Constants.SUCCESS);
 
         }catch (BusinessException businessException){
             log.error("get user profile failed (businessException) ",businessException);
@@ -145,10 +156,12 @@ public class AuthenticationService {
                 uploadUserPersonalImage(user, updateUserDto.getProfilePicture());
             }
 
-
+       //test_fullName_01118005292/29304232401551_FRONT_ID.png
+      String userPersonalImage=  presignedUrlService.generatePreSignedUrl("test_fullName_01118005292/29304232401551_FRONT_ID.png",60);
+        log.info("userPersonalImage:{}",userPersonalImage);
         user=userRepository.save(user);
         UserResponseDto userResponseDto =userMapper.mapUserDto(user)  ;
-        return  ApiResponseDto.success(userResponseDto,"SUCCESS");
+        return  ApiResponseDto.success(userResponseDto,Constants.SUCCESS);
     }catch (BusinessException businessException){
        log.error("update user failed (businessException) ",businessException);
         return ApiResponseDto.businessException(List.of(businessException.getMessage()));
@@ -173,21 +186,56 @@ public class AuthenticationService {
         return userRepository.findByPassportNumber(nationalId).isPresent();
     }
 
-
-    private void uploadUserImages(RegisterDto registerRequest)  {
-        if (registerRequest.getNationalId()!=null) {
-            log.info("upload National Id : {}", registerRequest.getNationalId());
-            fileService.uploadFile(registerRequest.getFullName()+"_"+registerRequest.getMobileNumber(),registerRequest.getNationalImgFront(), registerRequest.getNationalId()+"_"+ImageType.FRONT_ID);
-            fileService.uploadFile(registerRequest.getFullName()+"_"+registerRequest.getMobileNumber(),registerRequest.getNationalImgBack(), registerRequest.getNationalId()+"_"+ImageType.BACK_ID);
-        }else {
-            log.info("upload passport Id : {}", registerRequest.getPassportNumber());
-            fileService.uploadFile(registerRequest.getFullName()+"_"+registerRequest.getMobileNumber(),registerRequest.getNationalImgBack(), registerRequest.getPassportNumber()+"_"+ImageType.PASSPORT);
-        }
+    private String buildUserKey(RegisterDto registerRequest,ImageType  imageType) {
+        return switch (imageType) {
+            case FRONT_ID ->
+                    registerRequest.getNationalId() + "/" + imageType.name() + "." + getExtension(registerRequest.getNationalImgFront());
+            case BACK_ID ->
+                    registerRequest.getNationalId() + "/" + imageType.name() + "." + getExtension(registerRequest.getNationalImgBack());
+            case PASSPORT ->
+                    registerRequest.getPassportNumber() + "/" + imageType.name() + "." + getExtension(registerRequest.getPassportImg());
+            default -> "";
+        };
     }
+
+    public static String getExtension(MultipartFile file) {
+        return FileService.getExtension(file);
+    }
+
+    private void uploadUserPersonalImage(List<UserImage> userImageList,RegisterDto registerRequest) {
+
+        if (userImageList==null || userImageList.isEmpty())
+            return;
+
+        userImageList.forEach(userImage -> {
+            switch (userImage.getImageType()) {
+                case BACK_ID ->{
+                    log.info("upload national image back ");
+                    fileService.uploadFile(registerRequest.getNationalImgBack(),userImage.getImageKey());
+                    log.info("national image back uploaded successfully");
+                }
+                case FRONT_ID -> {
+                    log.info("upload national image front ");
+                    fileService.uploadFile(registerRequest.getNationalImgFront(),userImage.getImageKey());
+                    log.info("national image front uploaded successfully");
+                }
+
+                case PASSPORT ->{
+                    log.info("upload  image passport ");
+                    fileService.uploadFile(registerRequest.getPassportImg(),userImage.getImageKey());
+                    log.info("image passport uploaded successfully");
+                }
+            }
+
+        });
+
+    }
+
 
     private void uploadUserPersonalImage(AlrawiUser user, MultipartFile file) {
         log.info("start upload user personal image ");
-        fileService.uploadFile(buildUserPrefix(user),file,user.getNationalId()+"_"+ImageType.FRONT_ID);
+        if (file != null )
+             fileService.uploadFile(buildUserPrefix(user),file,user.getNationalId()+"_"+ImageType.FRONT_ID);
     }
 
     private String buildUserPrefix(AlrawiUser user) {
@@ -196,19 +244,17 @@ public class AuthenticationService {
     private List<UserImage> getUserImages(RegisterDto registerRequest, AlrawiUser user) {
 
         List<UserImage>  userImages = new ArrayList<>();
-        if (registerRequest.getNationalImgFront() != null) {
-            UserImage userImageNationalFront = new UserImage(registerRequest.getNationalId()+"_"+ ImageType.FRONT_ID, ImageType.FRONT_ID);
-            userImageNationalFront.setAlrawiUser(user);
-            userImages.add(userImageNationalFront);
-        }
 
-        if (registerRequest.getNationalImgBack() != null) {
-            UserImage userImageNationalBack = new UserImage(registerRequest.getNationalId()+"_"+ImageType.BACK_ID, ImageType.BACK_ID);
+        if (registerRequest.getNationalId()!=null) {
+            UserImage userImageNationalFront = new UserImage(buildUserKey(registerRequest,ImageType.FRONT_ID), ImageType.FRONT_ID);
+            UserImage userImageNationalBack = new UserImage(buildUserKey(registerRequest,ImageType.BACK_ID),ImageType.BACK_ID);
+            userImageNationalFront.setAlrawiUser(user);
             userImageNationalBack.setAlrawiUser(user);
             userImages.add(userImageNationalBack);
+            userImages.add(userImageNationalFront);
         }
         if (registerRequest.getPassportImg() != null) {
-            UserImage userImagePassPort = new UserImage(registerRequest.getPassportNumber() + "_" + ImageType.PASSPORT, ImageType.PASSPORT);
+            UserImage userImagePassPort = new UserImage(buildUserKey(registerRequest,ImageType.PASSPORT), ImageType.PASSPORT);
             userImagePassPort.setAlrawiUser(user);
             userImages.add(userImagePassPort);
         }

@@ -1,5 +1,6 @@
 package eg.alrawi.alrawi_award.utils;
 
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,7 @@ public final class SecurityUtil {
                 SecurityContextHolder.getContext().getAuthentication();
         return auth != null ? auth.getName() : "ANONYMOUS";
     }
+
 
 
 

@@ -19,7 +19,7 @@ public class UserImage {
     @Enumerated(EnumType.STRING)
     private ImageType imageType;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private AlrawiUser alrawiUser;
 

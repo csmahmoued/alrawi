@@ -37,9 +37,24 @@ public class FileService {
 
         s3Client.putObject(PutObjectRequest.builder()
                         .bucket(bucketName)
-                        .key(bucketPrefix.replaceAll("\\s+","_")+"/"+key.replaceAll("\\s+","_")+"."+getExtension(file))
+                        .key(key+"."+getExtension(file))
                         .build(),
                 RequestBody.fromBytes(file.getBytes()));
+
+        }catch (Exception e){
+            log.info("an error has been occurred while upload image  ",e);
+        }
+    }
+
+    public void uploadFile(MultipartFile file,String key)  {
+
+        try {
+
+            s3Client.putObject(PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(key)
+                            .build(),
+                    RequestBody.fromBytes(file.getBytes()));
 
         }catch (Exception e){
             log.info("an error has been occurred while upload image  ",e);
@@ -99,7 +114,7 @@ public class FileService {
 
 
 
-    public void uploadArchiveToS3(String prefix,String key,List<MultipartFile> images) {
+    public void uploadArchiveToS3(String key,List<MultipartFile> images) {
 
      try {
 
@@ -107,7 +122,7 @@ public class FileService {
 
          PutObjectRequest request = PutObjectRequest.builder()
                  .bucket(bucketName)
-                 .key(prefix+"/"+key)
+                 .key(key)
                  .contentType("application/zip")
                  .contentLength(archiveStream.length())
                  .build();

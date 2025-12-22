@@ -1,5 +1,6 @@
 package eg.alrawi.alrawi_award.entity;
 
+import eg.alrawi.alrawi_award.model.CategoryContentType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,7 +20,8 @@ public class AlrawiCategory {
 
     private String categoryDescription;
 
-    private String categoryContentType;
+    @Enumerated(EnumType.STRING)
+    private CategoryContentType categoryContentType;
 
     @OneToMany(mappedBy = "alrawiCategory",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<AlrawiProject> projects;

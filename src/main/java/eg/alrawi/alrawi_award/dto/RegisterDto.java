@@ -24,7 +24,7 @@ public class RegisterDto implements Serializable {
     private String city;
     private String government;
 
-    @NationalId(message = "national id is not valid ")
+    @NationalId(message = "{national.invalid.format}")
     private String nationalId;
 
     @Passport
@@ -38,5 +38,8 @@ public class RegisterDto implements Serializable {
 
     @ValidImage
     private MultipartFile passportImg;
+
+    private String dateOfBirth;
+
 
 }

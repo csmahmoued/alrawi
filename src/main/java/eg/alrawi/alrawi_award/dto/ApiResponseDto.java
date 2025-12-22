@@ -1,5 +1,6 @@
 package eg.alrawi.alrawi_award.dto;
 
+import eg.alrawi.alrawi_award.model.Constants;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -32,11 +33,11 @@ public class ApiResponseDto<T> implements Serializable {
     }
 
     public static <T> ApiResponseDto<T> error(List<String> errors) {
-        return new ApiResponseDto<>(false, "FAIL", null, errors);
+        return new ApiResponseDto<>(false, Constants.FAILURE, null, errors);
     }
 
     public static <T> ApiResponseDto<T> businessException(List<String> errors) {
-        return new ApiResponseDto<>(false, "FAIL", null, errors);
+        return new ApiResponseDto<>(false, Constants.FAILURE, null, errors);
     }
 
 

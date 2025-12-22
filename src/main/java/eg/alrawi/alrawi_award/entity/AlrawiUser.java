@@ -50,7 +50,7 @@ public class AlrawiUser implements UserDetails {
     @Column(updatable = false)
     private Date dateCreated;
 
-    @OneToMany(mappedBy = "alrawiUser",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "alrawiUser",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<UserImage> alrawiUserImages;
 
     @OneToMany(mappedBy = "alrawiUser",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
