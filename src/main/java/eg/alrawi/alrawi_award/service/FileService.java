@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -13,6 +14,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.*;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,7 +26,7 @@ import java.util.zip.ZipOutputStream;
 public class FileService {
 
     private final Logger log= LoggerFactory.getLogger(FileService.class);
-    private final static String bucketName="alrawi-awards";
+    private final static String bucketName="alrawi-awards-app";
     private final S3Client s3Client;
 
     public FileService(S3Client s3Client) {
@@ -61,12 +63,20 @@ public class FileService {
         }
     }
 
-    public byte[] downloadFile(String key){
-        ResponseBytes<GetObjectResponse> objectAclResponseResponseBytes=s3Client.getObjectAsBytes(GetObjectRequest.builder()
-                .bucket("ets-media")
-                .key(key)
-                .build());
-        return objectAclResponseResponseBytes.asByteArray();
+
+
+    public byte[] downloadFile(String key) {
+        return s3Client.getObjectAsBytes(req -> req.bucket("alrawi-awards").key(key))
+                .asByteArray();
+    }
+
+    public String downloadFileAsBase64(String imageKey) {
+        byte[] imageBytes = s3Client.getObjectAsBytes(req -> req
+                        .bucket("alrawi-awards")
+                        .key(imageKey))
+                .asByteArray();
+        return Base64.getEncoder().encodeToString(imageBytes);
+
     }
 
 

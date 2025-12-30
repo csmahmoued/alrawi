@@ -20,4 +20,6 @@ public class UserResponseDto implements Serializable {
     private String dateOfBirth;
 
     private List<ProjectDto> projects;
+    private String personalImg;
+
 }

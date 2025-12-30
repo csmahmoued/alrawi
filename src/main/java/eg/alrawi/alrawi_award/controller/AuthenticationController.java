@@ -47,4 +47,9 @@ public class AuthenticationController {
              return new ResponseEntity<>(responseDto, HttpStatus.FORBIDDEN);
     }
 
+
+    @GetMapping("/hello")
+    public ResponseEntity<?> healthCheck(){
+        return new ResponseEntity<>("Hello Ok",HttpStatus.OK);
+    }
 }

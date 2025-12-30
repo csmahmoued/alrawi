@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import static eg.alrawi.alrawi_award.utils.NationalUtils.*;
@@ -77,7 +78,7 @@ public class AuthenticationService {
 
          userRepository.save(user);
 
-        uploadUserPersonalImage(user.getAlrawiUserImages(),registerRequest);
+         uploadUserPersonalImage(user.getAlrawiUserImages(),registerRequest);
 
          userResponseDto=userMapper.mapUserDto(user);
 
@@ -120,7 +121,7 @@ public class AuthenticationService {
     public ApiResponseDto<?> updateUser(UpdateUserDto updateUserDto) {
 
     try {
-
+        UserResponseDto userResponseDto=new UserResponseDto();
         String userEmail = DecodedToken.getEmailFromToken(request.getHeader("Authorization").substring(7));
         AlrawiUser user = userRepository.findByEmail(userEmail).orElse(null);
         if (user == null)
@@ -134,10 +135,6 @@ public class AuthenticationService {
 
         if (updateUserDto.getFullName() != null)
             user.setFullName(updateUserDto.getFullName());
-
-
-        if (updateUserDto.getEmail() != null)
-            user.setEmail(updateUserDto.getEmail());
 
         if (updateUserDto.getMobileNumber() != null)
             user.setMobileNumber(updateUserDto.getMobileNumber());
@@ -155,13 +152,17 @@ public class AuthenticationService {
                 userImage.setAlrawiUser(user);
                 uploadUserPersonalImage(user, updateUserDto.getProfilePicture());
             }
+            user=userRepository.save(user);
+       UserImage userImages = user.getAlrawiUserImages().stream().filter(img->img.getImageType().equals(ImageType.PERSONAL)).findFirst().orElse(null);
+       if (userImages != null) {
+           String imageBytes= fileService.downloadFileAsBase64(userImages.getImageKey());
+           userResponseDto.setPersonalImg(imageBytes);
+       }
 
-       //test_fullName_01118005292/29304232401551_FRONT_ID.png
-      String userPersonalImage=  presignedUrlService.generatePreSignedUrl("test_fullName_01118005292/29304232401551_FRONT_ID.png",60);
-        log.info("userPersonalImage:{}",userPersonalImage);
-        user=userRepository.save(user);
-        UserResponseDto userResponseDto =userMapper.mapUserDto(user)  ;
-        return  ApiResponseDto.success(userResponseDto,Constants.SUCCESS);
+        userResponseDto =userMapper.mapUserDto(user)  ;
+
+       return  ApiResponseDto.success(userResponseDto,Constants.SUCCESS);
+
     }catch (BusinessException businessException){
        log.error("update user failed (businessException) ",businessException);
         return ApiResponseDto.businessException(List.of(businessException.getMessage()));

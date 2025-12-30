@@ -23,7 +23,7 @@ import java.util.List;
 public class PresignedUrlService {
 
     private final S3Presigner s3Presigner;
-    private final static String bucketName="alrawi-awards";
+    private final static String bucketName="alrawi-awards-app";
 
     public String generatePreSignedUrl(String key, long expirationMinutes) {
 
