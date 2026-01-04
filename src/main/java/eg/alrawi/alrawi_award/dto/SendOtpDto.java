@@ -1,11 +1,18 @@
 package eg.alrawi.alrawi_award.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import lombok.ToString;
 
+import java.io.Serializable;
+
+@ToString
 @Data
-public class SendOtpDto {
+public class SendOtpDto implements Serializable {
 
-    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$",message = "not valid mail")
+    @Email(message = "{email.invalid.message}")
     private String email;
+
+
 }

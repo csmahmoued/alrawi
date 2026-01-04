@@ -11,9 +11,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidImage {
 
-    String message() default "File must be a valid image (JPEG/PNG) under 5 MB";
+    String message() default "{image.invalid.message}";
 
-    long maxSize() default 5 * 1024 * 1024; // default 5 MB
+    long maxSize() default 5 * 1024 * 1024;
 
     String[] allowedTypes() default { "image/jpeg", "image/png", "image/jpg" };
 

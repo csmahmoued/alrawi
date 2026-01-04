@@ -3,7 +3,6 @@ import eg.alrawi.alrawi_award.annotations.ValidImage;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
@@ -13,26 +12,37 @@ import java.io.Serializable;
 public class UpdateUserDto implements Serializable {
 
 
-    @Size( max = 50, message = "city must be between 2 and 50 characters")
-    @Pattern(  regexp = "^(?=.*\\p{L})[\\p{L} ]+$", message = "city must contain letters only")
+    @Size(max=20,message ="{city.max.valid.message}")
+    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{city.validation.message}")
     private String city;
 
-    @Size( max = 50, message = "government must be between 2 and 50 characters")
-    @Pattern(  regexp = "^(?=.*\\p{L})[\\p{L} ]+$", message = "government must contain letters only")
+    @Size(max=20,message ="{city.max.valid.message}")
+    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{city.validation.message}")
     private String government;
 
 
-    @Size( max = 100, message = "fullName must be between 2 and 100 characters")
-    @Pattern(  regexp = "^(?=.*\\p{L})[\\p{L} ]+$", message = "fullName must contain letters only")
+    @Size(max=50,message = "{name.max.valid.message}")
+    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{name.validation.message}")
     private String fullName;
 
-    @Size(max = 80)
-    @Email(message = "Invalid email format")
+    @Email(message = "{email.invalid.message}")
     private String email;
 
-    @Pattern(regexp = "^(\\+20|0)?1[0125][0-9]{8}$", message = "invalid mobile number ")
+    @Pattern(regexp = "^(\\+20)?1[0-9]{9}$" ,message = "{invalid.mobile.message}")
     private String mobileNumber;
 
     @ValidImage
     private MultipartFile profilePicture;
+
+
+    @Override
+    public String toString() {
+        return "UpdateUserDto{" +
+                "city='" + city + '\'' +
+                ", government='" + government + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                '}';
+    }
 }

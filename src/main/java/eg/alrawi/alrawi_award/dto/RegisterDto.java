@@ -4,7 +4,10 @@ package eg.alrawi.alrawi_award.dto;
 import eg.alrawi.alrawi_award.annotations.NationalId;
 import eg.alrawi.alrawi_award.annotations.Passport;
 import eg.alrawi.alrawi_award.annotations.ValidImage;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,12 +19,22 @@ import java.io.Serializable;
 public class RegisterDto implements Serializable {
 
     private String password;
-
-    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", message = "Invalid email format")
+    @Email(message = "{email.invalid.message}")
     private String email;
+
+    @Size(max=50,message = "{name.max.valid.message}")
+    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{name.validation.message}")
     private String fullName;
+
+    @Pattern(regexp = "^(\\+20)?1[0-9]{9}$" ,message = "{invalid.mobile.message}")
     private String mobileNumber;
+
+    @Size(max=20,message ="{city.max.valid.message}")
+    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{city.validation.message}")
     private String city;
+
+    @Size(max=20,message ="{city.max.valid.message}")
+    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{city.validation.message}")
     private String government;
 
     @NationalId(message = "{national.invalid.format}")
@@ -42,4 +55,18 @@ public class RegisterDto implements Serializable {
     private String dateOfBirth;
 
 
+    @Override
+    public String toString() {
+        return "RegisterDto{" +
+                "password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                ", city='" + city + '\'' +
+                ", government='" + government + '\'' +
+                ", nationalId='" + nationalId + '\'' +
+                ", passportNumber='" + passportNumber + '\'' +
+                ", dateOfBirth='" + dateOfBirth + '\'' +
+                '}';
+    }
 }

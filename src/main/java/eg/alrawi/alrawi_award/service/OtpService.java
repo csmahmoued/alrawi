@@ -126,9 +126,9 @@ public class OtpService {
     private Email getEmail(String userEmail, String otp) {
         Email email = new Email();
         email.setTo(userEmail);
-        email.setSubject("AlRawi-Awards");
-        email.setFromEmail("mahmoud.eamohamed@outlook.com");
-        email.setFrom("mahmoud.eamohamed@outlook.com");
+        email.setSubject("AlRawiAwards");
+        email.setFromEmail("alrawiawards@gmail.com");
+        email.setFrom("alrawiawards@gmail.com");
         email.setTemplateName("email_template_alrawi.ftl");
         Map<String, String> model = new HashMap<>();
         model.put("otp",otp);

@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Passport {
 
-    String message() default "Invalid Passport ID format";
+    String message() default "{invalid.passport.message}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

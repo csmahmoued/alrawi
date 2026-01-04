@@ -35,7 +35,8 @@ public class AuditFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } finally {
-            saveAudit(request, response, start,txId);
+            if(!request.getRequestURI().contains("/api/v1/auth/hello"))
+                    saveAudit(request, response, start,txId);
         }
     }
 

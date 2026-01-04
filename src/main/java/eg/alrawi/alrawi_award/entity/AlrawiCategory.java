@@ -18,12 +18,13 @@ public class AlrawiCategory {
     @Column(unique = true, nullable = false)
     private String categoryName;
 
-    private String categoryDescription;
-
     @Enumerated(EnumType.STRING)
     private CategoryContentType categoryContentType;
 
     @OneToMany(mappedBy = "alrawiCategory",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<AlrawiProject> projects;
+
+    @OneToMany(mappedBy = "category",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<CategoryDescription> categoryDescriptions;
 
 }
