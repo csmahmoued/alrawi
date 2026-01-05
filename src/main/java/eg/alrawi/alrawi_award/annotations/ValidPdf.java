@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPdf {
 
-    String message() default "File must be a PDF and ≤ 15MB";
+    String message() default "{invalid.pdf}";
 
     Class<?>[] groups() default {};
 

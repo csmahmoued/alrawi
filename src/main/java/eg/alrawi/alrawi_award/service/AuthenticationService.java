@@ -1,8 +1,5 @@
 package eg.alrawi.alrawi_award.service;
-import eg.alrawi.alrawi_award.dto.ApiResponseDto;
-import eg.alrawi.alrawi_award.dto.RegisterDto;
-import eg.alrawi.alrawi_award.dto.UpdateUserDto;
-import eg.alrawi.alrawi_award.dto.UserResponseDto;
+import eg.alrawi.alrawi_award.dto.*;
 import eg.alrawi.alrawi_award.entity.AlrawiUser;
 import eg.alrawi.alrawi_award.entity.UserImage;
 import eg.alrawi.alrawi_award.error.BusinessException;
@@ -19,10 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Base64;
+
 import java.util.List;
 
 import static eg.alrawi.alrawi_award.utils.NationalUtils.*;
@@ -35,7 +30,6 @@ public class AuthenticationService {
 
     private  final UserRepository userRepository;
     private final FileService fileService;
-    private final PresignedUrlService presignedUrlService;
     private final UserMapper userMapper;
     private final HttpServletRequest request;
     private final LocalUtils localUtils;
@@ -56,8 +50,6 @@ public class AuthenticationService {
                     throw new BusinessException(localUtils.getMessage("NATIONAL_ID_ERROR_MSG"));
 
              user.setGender(extractGender(registerRequest.getNationalId()));
-             LocalDate localDate=extractBirthDate(registerRequest.getNationalId());
-
              user.setDateOfBirth(extractBirthDateFormatted(registerRequest.getNationalId()));
 
          }else if (registerRequest.getPassportNumber()!=null) {
@@ -104,7 +96,6 @@ public class AuthenticationService {
                 throw new UsernameNotFoundException("Username Not Found");
 
             UserResponseDto userResponseDto =userMapper.mapUserDto(user);
-
 
             return  ApiResponseDto.success(userResponseDto,Constants.SUCCESS);
 

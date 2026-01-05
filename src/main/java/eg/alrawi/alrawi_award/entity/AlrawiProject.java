@@ -16,6 +16,7 @@ public class AlrawiProject {
 
     private String projectTitle;
 
+    @Column(length = 350)
     private String projectDescription;
 
    @ManyToOne(cascade = CascadeType.ALL)

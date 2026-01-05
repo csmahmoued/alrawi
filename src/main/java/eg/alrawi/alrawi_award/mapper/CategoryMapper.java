@@ -3,10 +3,8 @@ package eg.alrawi.alrawi_award.mapper;
 
 import eg.alrawi.alrawi_award.dto.CategoryDto;
 import eg.alrawi.alrawi_award.entity.AlrawiCategory;
-import org.mapstruct.Mapper;
-import org.mapstruct.NullValueCheckStrategy;
-import org.mapstruct.NullValueMappingStrategy;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import eg.alrawi.alrawi_award.entity.CategoryDescription;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -23,4 +21,7 @@ public interface CategoryMapper {
     CategoryDto mapCategory(AlrawiCategory alrawiCategory);
 
     List<CategoryDto> mapCategory(List<AlrawiCategory> alrawiCategories);
+
+
+
 }
