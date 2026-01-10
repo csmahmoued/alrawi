@@ -3,10 +3,9 @@ package eg.alrawi.alrawi_award.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.ResponseBytes;
-import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -14,10 +13,9 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.*;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -80,7 +78,7 @@ public class FileService {
     }
 
 
-    public static String getExtension(MultipartFile file) {
+    public  String getExtension(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return "";
         }
@@ -152,4 +150,58 @@ public class FileService {
 
     }
 
+    @Async
+    public CompletableFuture<String> uploadFileAsync(MultipartFile file,String key) throws IOException {
+        String fileName = uploadFileAsc(file,key);
+        return CompletableFuture.completedFuture(fileName);
+    }
+
+    public List<String> uploadMultipleFilesAsync(List<MultipartFile> files, List<String> keys) throws IOException {
+        List<CompletableFuture<String>> futures = new ArrayList<>();
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile file = files.get(i);
+            String key = keys.get(i);
+            try {
+                futures.add(uploadFileAsync(file, key));
+            } catch (Exception e) {
+                log.info("an error has been occurred while upload image  ",e);
+                throw new RuntimeException("Failed to upload file: " + file.getOriginalFilename(), e);
+            }
+        }
+
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> uploadMultipleFilesAsync(List<MultipartFile> files,String key) throws IOException {
+        List<CompletableFuture<String>> futures = files.stream()
+                .map(file -> {
+                    try {
+                        return uploadFileAsync(file,key);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+    }
+
+    public String uploadFileAsc(MultipartFile file,String key) throws IOException {
+        String fileName = key+System.currentTimeMillis()+"."+getExtension(file);
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName.replaceAll("\\s+","_"))
+                .contentType(file.getContentType())
+                .build();
+
+        s3Client.putObject(putObjectRequest,
+                RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+        return fileName;
+    }
 }

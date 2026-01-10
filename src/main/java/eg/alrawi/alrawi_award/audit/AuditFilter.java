@@ -26,7 +26,7 @@ public class AuditFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         long start = System.currentTimeMillis();
-
+        response.setHeader("Access-Control-Allow-Origin", "*");
         String txId = CorrelationIdUtil.getOrCreate(request);
 
         MDC.put(CorrelationIdUtil.TX_ID, txId);

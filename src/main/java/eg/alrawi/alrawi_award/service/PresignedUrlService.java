@@ -99,7 +99,6 @@ public class PresignedUrlService {
             PutObjectRequest objectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
-                    .contentType(contentType)
                     .build();
 
             PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(

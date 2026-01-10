@@ -190,8 +190,8 @@ public class AuthenticationService {
         };
     }
 
-    public static String getExtension(MultipartFile file) {
-        return FileService.getExtension(file);
+    public  String getExtension(MultipartFile file) {
+        return fileService.getExtension(file);
     }
 
     private void uploadUserPersonalImage(List<UserImage> userImageList,RegisterDto registerRequest) {

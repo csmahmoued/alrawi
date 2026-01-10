@@ -5,6 +5,7 @@ import eg.alrawi.alrawi_award.dto.ProjectContentDto;
 import eg.alrawi.alrawi_award.dto.UploadProjectResponseDto;
 import eg.alrawi.alrawi_award.entity.AlrawiCategory;
 import eg.alrawi.alrawi_award.entity.AlrawiProject;
+import eg.alrawi.alrawi_award.entity.AlrawiProjectContent;
 import eg.alrawi.alrawi_award.entity.AlrawiUser;
 import eg.alrawi.alrawi_award.error.BusinessException;
 import eg.alrawi.alrawi_award.model.Constants;
@@ -18,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,9 +59,14 @@ public class ProjectContentService {
 
          AlrawiProject alrawiProject = getAlrawiProject(projectContentDto, alrawiUser, alrawiCategory);
 
+         List<String> projectContentKeys=getProjectContentKey(projectContentDto, alrawiUser, alrawiCategory);
+         log.info("projectContentKeys {} ",projectContentKeys);
+
+         alrawiProject.setAlrawiProjectContent(getProjectContents(projectContentKeys,alrawiProject));
+
          projectRepository.save(alrawiProject);
 
-         String uploadUrl = uploadProjectContents(alrawiProject,projectContentDto);
+         String uploadUrl = uploadProjectContents(alrawiProject,projectContentDto,projectContentKeys);
 
          if (uploadUrl != null && !uploadUrl.isEmpty())
              uploadProjectResponseDto.setUploadUrl(uploadUrl);
@@ -76,6 +85,50 @@ public class ProjectContentService {
 
          return ApiResponseDto.success(uploadProjectResponseDto, Constants.SUCCESS);
     }
+
+    private List<AlrawiProjectContent> getProjectContents(List<String> projectContentKeys, AlrawiProject alrawiProject) {
+
+        List<AlrawiProjectContent>  alrawiProjectContents = new ArrayList<>();
+        projectContentKeys.forEach(projectContentKey -> {
+            AlrawiProjectContent  alrawiProjectContent = new AlrawiProjectContent();
+            alrawiProjectContent.setAlrawiProject(alrawiProject);
+            alrawiProjectContent.setContentKey(projectContentKey);
+            alrawiProjectContents.add(alrawiProjectContent);
+        });
+
+        return alrawiProjectContents;
+
+    }
+
+    private List<String> getProjectContentKey(ProjectContentDto projectContentDto, AlrawiUser alrawiUser, AlrawiCategory alrawiCategory) {
+
+        List<String> projectContentKeys = new ArrayList<>();
+        switch (alrawiCategory.getCategoryContentType()){
+
+            case IMAGE :
+                if (projectContentDto.getImgFile() !=null && !projectContentDto.getImgFile().isEmpty()){
+                    projectContentDto.getImgFile().forEach(imageFile -> {
+                     String generatedKey=buildKey(alrawiUser,alrawiCategory,projectContentDto);
+                      projectContentKeys.add(generatedKey+"/"+System.currentTimeMillis()+"."+fileService.getExtension(imageFile));
+                    });
+
+                }
+             break;
+
+            case VIDEO ,MP3,PDF:
+                String generatedKey=buildKey(alrawiUser,alrawiCategory,projectContentDto);
+                projectContentKeys.add(generatedKey);
+                break;
+        }
+
+
+
+        return  projectContentKeys;
+
+    }
+
+
+
 
     private void validateUserProject(AlrawiUser alrawiUser, ProjectContentDto projectContentDto) {
 
@@ -108,7 +161,8 @@ public class ProjectContentService {
            return    alrawiUser.getPassportNumber()+"/projects/"+alrawiCategory.getCategoryName().replaceAll("\\s+","_")+"/"+projectContentDto.getProjectTitle().replaceAll("\\s+","_");
     }
 
-    private String uploadProjectContents(AlrawiProject alrawiProject,ProjectContentDto projectContentDto)  {
+
+    private String uploadProjectContents(AlrawiProject alrawiProject,ProjectContentDto projectContentDto,List<String> projectContentKeys) throws IOException {
 
         String uploadProjectUrl="";
 
@@ -116,20 +170,19 @@ public class ProjectContentService {
             case IMAGE:
                 log.info("Uploading Photography");
                 List<MultipartFile> projectImages=projectContentDto.getImgFile();
-                if (projectImages.size()>10)
-                    throw new BusinessException(localUtils.getMessage("UPLOAD_EXCEED_SIZE"));
-                fileService.uploadArchiveToS3(alrawiProject.getProjectKey(),projectImages);
+                List<String> files= fileService.uploadMultipleFilesAsync(projectImages,projectContentKeys);
+                log.info("Uploading files files {} ",files);
                 break;
             case PDF:
-               log.info("upload file {} ",projectContentDto.getScriptFile().getContentType());
-               fileService.uploadFile(projectContentDto.getScriptFile(),alrawiProject.getProjectKey());
+               log.info("upload file PDF {} ",projectContentDto.getScriptFile().getContentType());
+               fileService.uploadFile(projectContentDto.getScriptFile(),projectContentKeys.getFirst());
             break;
             case MP3:
-                uploadProjectUrl = presignedUrlService.generateVideoUploadLink(alrawiProject.getProjectKey(),"audio/mpeg");
+                uploadProjectUrl = presignedUrlService.generateVideoUploadLink(projectContentKeys.getFirst(),"audio/mpeg");
                 log.info("upload video url : {} ",uploadProjectUrl);
                 break;
             default:
-                uploadProjectUrl = presignedUrlService.generateVideoUploadLink(alrawiProject.getProjectKey(),"video/mp4");
+                uploadProjectUrl = presignedUrlService.generateVideoUploadLink(projectContentKeys.getFirst(),"video/mp4");
                 log.info("upload mp3 url : {} ",uploadProjectUrl);
                 break;
         }

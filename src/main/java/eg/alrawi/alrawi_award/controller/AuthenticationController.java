@@ -50,6 +50,6 @@ public class AuthenticationController {
 
     @GetMapping("/hello")
     public ResponseEntity<?> healthCheck(){
-        return new ResponseEntity<>("Hello Ok",HttpStatus.OK);
+        return new ResponseEntity<>("Hello Ok2.",HttpStatus.OK);
     }
 }
