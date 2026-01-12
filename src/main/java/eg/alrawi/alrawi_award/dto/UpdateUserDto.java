@@ -16,8 +16,8 @@ public class UpdateUserDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{city.validation.message}")
     private String city;
 
-    @Size(max=20,message ="{city.max.valid.message}")
-    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{city.validation.message}")
+  //  @Size(max=20,message ="{city.max.valid.message}")
+  //  @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{city.validation.message}")
     private String government;
 
 
@@ -25,10 +25,10 @@ public class UpdateUserDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{name.validation.message}")
     private String fullName;
 
-    @Email(message = "{email.invalid.message}")
+   // @Email(message = "{email.invalid.message}")
     private String email;
 
-    @Pattern(regexp = "^(\\+20)?1[0-9]{9}$" ,message = "{invalid.mobile.message}")
+  //  @Pattern(regexp = "^(\\+20)?1[0-9]{9}$" ,message = "{invalid.mobile.message}")
     private String mobileNumber;
 
     @ValidImage

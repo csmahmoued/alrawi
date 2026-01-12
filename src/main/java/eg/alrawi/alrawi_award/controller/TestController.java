@@ -27,8 +27,9 @@ public class TestController {
     public ResponseEntity<?> test(@RequestBody AlrawiCategory alrawiCategory) throws IOException {
       //  String imageBytes= fileService.downloadFileAsBase64("30108220100946/test1.jpg");
      //   BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
-
         return new ResponseEntity<>(LocaleContextHolder.getLocale().getLanguage(),HttpStatus.OK);
     }
+
+
 
 }

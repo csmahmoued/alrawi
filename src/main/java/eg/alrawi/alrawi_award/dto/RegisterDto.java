@@ -26,7 +26,7 @@ public class RegisterDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{name.validation.message}")
     private String fullName;
 
-    @Pattern(regexp = "^(\\+20)?1[0-9]{9}$" ,message = "{invalid.mobile.message}")
+    @Pattern(regexp = "^(?:\\+20|0)?1[0125][0-9]{8}$",message = "{invalid.mobile.message}")
     private String mobileNumber;
 
     @Size(max=20,message ="{city.max.valid.message}")
