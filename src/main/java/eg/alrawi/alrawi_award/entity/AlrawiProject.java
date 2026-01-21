@@ -2,7 +2,9 @@ package eg.alrawi.alrawi_award.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -29,11 +31,12 @@ public class AlrawiProject {
 
    private String projectStatus;
 
-   private String projectKey;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Date dateCreated;
 
-
-   @OneToMany(mappedBy = "alrawiProject",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-  private  List<AlrawiProjectContent>  alrawiProjectContent;
+    @OneToMany(mappedBy = "alrawiProject",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private  List<AlrawiProjectContent>  alrawiProjectContent;
 
 
 }

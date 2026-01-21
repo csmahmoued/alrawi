@@ -37,6 +37,7 @@ public class RegisterDto implements Serializable {
     @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{city.validation.message}")
     private String government;
 
+    @Pattern( regexp = "^\\d{14}$", message = "{national.invalid.length}")
     @NationalId(message = "{national.invalid.format}")
     private String nationalId;
 

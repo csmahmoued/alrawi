@@ -4,13 +4,11 @@ package eg.alrawi.alrawi_award.controller;
 import eg.alrawi.alrawi_award.dto.ApiResponseDto;
 import eg.alrawi.alrawi_award.dto.CategoryDto;
 import eg.alrawi.alrawi_award.model.AlrawiCategoryDto;
-import eg.alrawi.alrawi_award.model.CategoryRequestBody;
 import eg.alrawi.alrawi_award.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

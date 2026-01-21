@@ -39,6 +39,8 @@ public class AuthenticationService {
 
         UserResponseDto userResponseDto=null;
      try {
+         log.info("Start register user {} ",registerRequest.getEmail());
+
          AlrawiUser user = userMapper.mapUser(registerRequest);
 
          user.setUsername(registerRequest.getEmail());
@@ -69,10 +71,12 @@ public class AuthenticationService {
          user.setAlrawiUserImages(getUserImages(registerRequest, user));
 
          userRepository.save(user);
-
          uploadUserPersonalImage(user.getAlrawiUserImages(),registerRequest);
 
          userResponseDto=userMapper.mapUserDto(user);
+
+         log.info("End register user {} ",registerRequest.getEmail());
+
 
      }catch (BusinessException businessException){
          log.error("upload project failed (businessException) ",businessException);

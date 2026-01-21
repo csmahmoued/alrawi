@@ -18,12 +18,12 @@ public class ProjectContentDto implements Serializable {
 
     private Long categoryId;
 
-    @Size(min = 3, max = 30 , message = "{invalid.project.title.size}")
-    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{project.title.validation.message}")
+    @Size(min = 2, max = 30 , message = "{invalid.project.title.size}")
+    @Pattern( regexp = "^[a-zA-Z\\u0621-\\u064A\\u06CC\\u064B-\\u0652\\p{P}\\s]+$" ,message = "{project.title.validation.message}")
     private String projectTitle;
 
     @Size(min = 1, max = 300 , message = "{invalid.project.description.size}")
-    @Pattern(regexp = "^[a-zA-Z\\u0621-\\u064A ]+$" ,message = "{project.description.validation.message}")
+    @Pattern( regexp = "^[a-zA-Z\\u0621-\\u064A\\u06CC\\u064B-\\u0652\\p{P}\\s]+$",message = "{project.description.validation.message}")
     private String projectDescription;
 
     @ValidPdf

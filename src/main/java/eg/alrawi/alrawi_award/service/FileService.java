@@ -191,17 +191,16 @@ public class FileService {
     }
 
     public String uploadFileAsc(MultipartFile file,String key) throws IOException {
-        String fileName = key+System.currentTimeMillis()+"."+getExtension(file);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(fileName.replaceAll("\\s+","_"))
+                .key(key.replaceAll("\\s+","_"))
                 .contentType(file.getContentType())
                 .build();
 
         s3Client.putObject(putObjectRequest,
                 RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-        return fileName;
+        return key;
     }
 }

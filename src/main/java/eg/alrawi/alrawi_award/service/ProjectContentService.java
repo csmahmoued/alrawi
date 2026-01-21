@@ -42,8 +42,9 @@ public class ProjectContentService {
 
         UploadProjectResponseDto  uploadProjectResponseDto = new UploadProjectResponseDto();
      try {
-
+         log.info("start uploadProject {} ",projectContentDto.getProjectTitle());
          String userEmail= DecodedToken.getEmailFromToken(request.getHeader("Authorization").substring(7));
+         log.info("user email is {}",userEmail);
 
          AlrawiUser alrawiUser = userRepository.findByEmail(userEmail).orElse(null);
 
@@ -83,6 +84,7 @@ public class ProjectContentService {
             return ApiResponseDto.error(List.of("An error has been occurred "));
      }
 
+         log.info("End upload project {} ",projectContentDto.getProjectTitle());
          return ApiResponseDto.success(uploadProjectResponseDto, Constants.SUCCESS);
     }
 
@@ -107,31 +109,32 @@ public class ProjectContentService {
 
             case IMAGE :
                 if (projectContentDto.getImgFile() !=null && !projectContentDto.getImgFile().isEmpty()){
-                    projectContentDto.getImgFile().forEach(imageFile -> {
-                     String generatedKey=buildKey(alrawiUser,alrawiCategory,projectContentDto);
-                      projectContentKeys.add(generatedKey+"/"+System.currentTimeMillis()+"."+fileService.getExtension(imageFile));
-                    });
-
+                    String generatedKey=buildKey(alrawiUser,alrawiCategory);
+                    for (int index=0;index<projectContentDto.getImgFile().size();index++)
+                           projectContentKeys.add(generatedKey+"/"+index+"."+fileService.getExtension(projectContentDto.getImgFile().get(index)));
                 }
              break;
 
-            case VIDEO ,MP3,PDF:
-                String generatedKey=buildKey(alrawiUser,alrawiCategory,projectContentDto);
-                projectContentKeys.add(generatedKey);
+            case VIDEO:
+                projectContentKeys.add(buildKey(alrawiUser,alrawiCategory)+"/"+System.currentTimeMillis()+".mp4");
                 break;
+
+            case  PDF:
+                projectContentKeys.add(buildKey(alrawiUser,alrawiCategory)+"/"+System.currentTimeMillis()+".pdf");
+                break;
+
+            case  MP3:
+                projectContentKeys.add(buildKey(alrawiUser,alrawiCategory)+"/"+System.currentTimeMillis()+".mp3");
+                break;
+
         }
-
-
-
         return  projectContentKeys;
-
     }
-
-
-
 
     private void validateUserProject(AlrawiUser alrawiUser, ProjectContentDto projectContentDto) {
 
+        log.info("start validateUserProject {} ",projectContentDto.getProjectTitle());
+        log.info("validateUserProject size {} ",alrawiUser.getProjects().size());
         if (alrawiUser.getProjects().size() > 3)
             throw new BusinessException(localUtils.getMessage("EXCEED_PROJECTS_MSG"));
 
@@ -141,6 +144,8 @@ public class ProjectContentService {
             }
         }
 
+        log.info("end validateUserProject {} ",projectContentDto.getProjectTitle());
+
     }
 
     private static AlrawiProject getAlrawiProject(ProjectContentDto projectContentDto, AlrawiUser alrawiUser, AlrawiCategory alrawiCategory) {
@@ -149,16 +154,15 @@ public class ProjectContentService {
         alrawiProject.setAlrawiCategory(alrawiCategory);
         alrawiProject.setProjectTitle(projectContentDto.getProjectTitle());
         alrawiProject.setProjectDescription(projectContentDto.getProjectDescription());
-        alrawiProject.setProjectKey(buildKey(alrawiUser,alrawiCategory,projectContentDto));
         alrawiProject.setProjectStatus(Constants.PENDING_STATUS);
         return alrawiProject;
     }
 
-    private static String buildKey(AlrawiUser alrawiUser, AlrawiCategory alrawiCategory,ProjectContentDto projectContentDto) {
+    private static String buildKey(AlrawiUser alrawiUser, AlrawiCategory alrawiCategory) {
         if(alrawiUser.getNationalId() !=null && !alrawiUser.getNationalId().isEmpty())
-           return   alrawiUser.getNationalId()+"/projects/"+alrawiCategory.getCategoryName().replaceAll("\\s+","_")+"/"+projectContentDto.getProjectTitle().replaceAll("\\s+","_");
+           return   alrawiUser.getNationalId()+"/projects/"+alrawiCategory.getCategoryName().replaceAll("\\s+","_");
         else
-           return    alrawiUser.getPassportNumber()+"/projects/"+alrawiCategory.getCategoryName().replaceAll("\\s+","_")+"/"+projectContentDto.getProjectTitle().replaceAll("\\s+","_");
+           return    alrawiUser.getPassportNumber()+"/projects/"+alrawiCategory.getCategoryName().replaceAll("\\s+","_");
     }
 
 

@@ -23,8 +23,8 @@ public class NationalIdValidator implements ConstraintValidator<NationalId, Stri
         if (value == null || value.isBlank())
             return true;
 
-        if (!value.matches("\\d{14}"))
-            return false;
+      //  if (!value.matches("\\d{14}"))
+          //  return false;
 
 
         char firstDigit = value.charAt(0);
