@@ -143,7 +143,7 @@ public class AuthenticationService {
                 uploadUserPersonalImage(user, updateUserDto.getProfilePicture());
             }
             else {
-                userImage = new UserImage(user.getNationalId() + "_" + ImageType.PERSONAL, ImageType.FRONT_ID);
+                userImage = new UserImage(user.getNationalId() + "/" + ImageType.PERSONAL, ImageType.PERSONAL);
                 userImage.setAlrawiUser(user);
                 uploadUserPersonalImage(user, updateUserDto.getProfilePicture());
             }
@@ -231,7 +231,7 @@ public class AuthenticationService {
     private void uploadUserPersonalImage(AlrawiUser user, MultipartFile file) {
         log.info("start upload user personal image ");
         if (file != null )
-             fileService.uploadFile(buildUserPrefix(user),file,user.getNationalId()+"_"+ImageType.FRONT_ID);
+             fileService.uploadFile(buildUserPrefix(user),file,user.getNationalId()+"/"+ImageType.PERSONAL);
     }
 
     private String buildUserPrefix(AlrawiUser user) {

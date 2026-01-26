@@ -135,7 +135,7 @@ public class ProjectContentService {
 
         log.info("start validateUserProject {} ",projectContentDto.getProjectTitle());
         log.info("validateUserProject size {} ",alrawiUser.getProjects().size());
-        if (alrawiUser.getProjects().size() > 3)
+        if (alrawiUser.getProjects().size() > 2)
             throw new BusinessException(localUtils.getMessage("EXCEED_PROJECTS_MSG"));
 
         for (AlrawiProject alrawiProject : alrawiUser.getProjects()) {
