@@ -22,6 +22,8 @@ public class FileStatus {
 
     private String  duration;
 
+    private Long size;
+
     @CreationTimestamp
     private Instant createAt;
 }

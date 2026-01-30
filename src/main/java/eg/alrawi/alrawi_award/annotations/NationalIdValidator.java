@@ -14,7 +14,7 @@ public class NationalIdValidator implements ConstraintValidator<NationalId, Stri
 
     private static final Set<String> VALID_GOV_CODES = Set.of(
             "01","02","03","04","11","12","13","14","15","16","17","18","19",
-            "21","22","23","24","25","26","27","28","29","31","32","33","34","35"
+            "21","22","23","24","25","26","27","28","29","31","32","33","34","35","88"
     );
 
     @Override
@@ -22,9 +22,6 @@ public class NationalIdValidator implements ConstraintValidator<NationalId, Stri
 
         if (value == null || value.isBlank())
             return true;
-
-      //  if (!value.matches("\\d{14}"))
-          //  return false;
 
 
         char firstDigit = value.charAt(0);
@@ -58,7 +55,7 @@ public class NationalIdValidator implements ConstraintValidator<NationalId, Stri
 
         String govCode = value.substring(7, 9);
         int age = LocalDate.now().getYear()-fullYear;
-        if (age > 35 || age < 18) {
+        if (age > 36 || age < 18) {
             return false;
         }
 
