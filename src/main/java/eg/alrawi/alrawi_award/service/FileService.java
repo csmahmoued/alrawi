@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.*;
 import java.util.*;
@@ -62,12 +60,6 @@ public class FileService {
     }
 
 
-
-    public byte[] downloadFile(String key) {
-        return s3Client.getObjectAsBytes(req -> req.bucket("alrawi-awards").key(key))
-                .asByteArray();
-    }
-
     public String downloadFileAsBase64(String imageKey) {
         byte[] imageBytes = s3Client.getObjectAsBytes(req -> req
                         .bucket("alrawi-awards")
@@ -90,7 +82,22 @@ public class FileService {
 
         return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
     }
+    public boolean doesObjectExist(String key) {
+        try {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
 
+            s3Client.headObject(headObjectRequest);
+            return true;
+        }catch (NoSuchKeyException e) {
+            return false;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
 
     private File compressImagesToArchiveFile(List<MultipartFile> images) throws IOException {
 

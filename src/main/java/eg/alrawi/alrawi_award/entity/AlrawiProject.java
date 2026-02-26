@@ -1,13 +1,15 @@
 package eg.alrawi.alrawi_award.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 @Entity
 @Table
 public class AlrawiProject {
@@ -21,11 +23,12 @@ public class AlrawiProject {
     @Column(length = 350)
     private String projectDescription;
 
-   @ManyToOne(cascade = CascadeType.ALL)
+   @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
    @JoinColumn(name = "category_id")
    private AlrawiCategory alrawiCategory;
 
-   @ManyToOne(cascade = CascadeType.ALL)
+
+   @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
    @JoinColumn(name = "user_id")
    private AlrawiUser alrawiUser;
 
@@ -35,7 +38,7 @@ public class AlrawiProject {
     @Column(updatable = false)
     private Date dateCreated;
 
-    @OneToMany(mappedBy = "alrawiProject",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "alrawiProject",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     private  List<AlrawiProjectContent>  alrawiProjectContent;
 
 

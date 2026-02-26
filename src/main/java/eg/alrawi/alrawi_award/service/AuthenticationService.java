@@ -1,5 +1,7 @@
 package eg.alrawi.alrawi_award.service;
 import eg.alrawi.alrawi_award.dto.*;
+import eg.alrawi.alrawi_award.entity.AlrawiProject;
+import eg.alrawi.alrawi_award.entity.AlrawiProjectContent;
 import eg.alrawi.alrawi_award.entity.AlrawiUser;
 import eg.alrawi.alrawi_award.entity.UserImage;
 import eg.alrawi.alrawi_award.error.BusinessException;
@@ -7,6 +9,7 @@ import eg.alrawi.alrawi_award.mapper.UserMapper;
 import eg.alrawi.alrawi_award.model.Constants;
 import eg.alrawi.alrawi_award.model.ImageType;
 import eg.alrawi.alrawi_award.model.Role;
+import eg.alrawi.alrawi_award.repository.ProjectRepository;
 import eg.alrawi.alrawi_award.repository.UserRepository;
 import eg.alrawi.alrawi_award.utils.DecodedToken;
 import eg.alrawi.alrawi_award.utils.LocalUtils;
@@ -33,6 +36,7 @@ public class AuthenticationService {
     private final UserMapper userMapper;
     private final HttpServletRequest request;
     private final LocalUtils localUtils;
+    private final ProjectRepository projectRepository;
 
 
     public ApiResponseDto<?> registerUser(RegisterDto registerRequest) {
@@ -95,20 +99,58 @@ public class AuthenticationService {
     public ApiResponseDto<?> getUserProfile() {
         try {
             String userEmail = DecodedToken.getEmailFromToken(request.getHeader("Authorization").substring(7));
-            AlrawiUser user = userRepository.findByEmail(userEmail).orElse(null);
-            if (user == null)
-                throw new UsernameNotFoundException("Username Not Found");
 
+            AlrawiUser user = userRepository.findByEmail(userEmail).orElseThrow(()->new UsernameNotFoundException("Username Not Found"));
+            List<AlrawiProject> deletedProjects=getInvalidProjectsNotInBuckets(user);
+            deleteInvalidProjects(deletedProjects,user);
             UserResponseDto userResponseDto =userMapper.mapUserDto(user);
 
             return  ApiResponseDto.success(userResponseDto,Constants.SUCCESS);
 
-        }catch (BusinessException businessException){
+        }catch (UsernameNotFoundException  usernameNotFoundException){
+            log.error("Username not found ",usernameNotFoundException);
+            return ApiResponseDto.businessException(List.of(usernameNotFoundException.getMessage()));
+        }
+        catch (BusinessException businessException){
             log.error("get user profile failed (businessException) ",businessException);
             return ApiResponseDto.businessException(List.of(businessException.getMessage()));
         }catch (Exception e){
             log.error("get user profile failed (e) ",e);
             return ApiResponseDto.error(List.of("An error occurred while processing the request"));
+        }
+    }
+
+    private List<AlrawiProject> getInvalidProjectsNotInBuckets(AlrawiUser user) {
+
+        List<AlrawiProject> deletedProjects=new ArrayList<>();
+        if (!user.getProjects().isEmpty()){
+            for(AlrawiProject project : user.getProjects()){
+                log.info("project id {} ",project.getProjectId());
+                for (AlrawiProjectContent projectContent:project.getAlrawiProjectContent()){
+                    log.info("project content id {} ",projectContent.getId());
+                    boolean isFileInBucket= fileService.doesObjectExist(projectContent.getContentKey());
+                    if (!isFileInBucket){
+                        log.info("file not exists {}",projectContent.getContentKey());
+                        deletedProjects.add(project);
+                    }
+                }
+            }
+        }
+
+        return deletedProjects;
+    }
+
+    private void deleteInvalidProjects(List<AlrawiProject> deletedProjects,AlrawiUser alrawiUser) {
+
+        if (!deletedProjects.isEmpty()){
+            deletedProjects.forEach(deletedProject->{
+                log.info("delete project {}",deletedProject.getProjectId());
+                alrawiUser.getProjects().remove(deletedProject);
+                deletedProject.setAlrawiUser(null);
+                projectRepository.deleteById(deletedProject.getProjectId());
+            });
+
+            userRepository.save(alrawiUser);
         }
     }
 

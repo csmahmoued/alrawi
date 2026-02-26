@@ -1,6 +1,8 @@
 package eg.alrawi.alrawi_award.controller;
 
 import eg.alrawi.alrawi_award.entity.AlrawiCategory;
+import eg.alrawi.alrawi_award.mail.Email;
+import eg.alrawi.alrawi_award.mail.MailService;
 import eg.alrawi.alrawi_award.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -15,6 +17,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth/")
@@ -22,14 +27,28 @@ import java.io.IOException;
 public class TestController {
 
     private final FileService fileService;
+    private final MailService  mailService;
 
     @GetMapping("/test")
-    public ResponseEntity<?> test(@RequestBody AlrawiCategory alrawiCategory) throws IOException {
-      //  String imageBytes= fileService.downloadFileAsBase64("30108220100946/test1.jpg");
-     //   BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
-        return new ResponseEntity<>(LocaleContextHolder.getLocale().getLanguage(),HttpStatus.OK);
+    public ResponseEntity<?> test(@RequestBody List<String> emils) throws IOException {
+       for (String emil : emils) {
+           Email email = getEmail(emil);
+           mailService.sendMail(email);
+       }
+        return new ResponseEntity<>("ok",HttpStatus.OK);
     }
 
+
+    private Email getEmail(String userEmail) {
+        Email email = new Email();
+        email.setTo(userEmail);
+        email.setSubject("AlRawiAwards");
+        email.setFromEmail("alrawiawards@gmail.com");
+        email.setFrom("alrawiawards@gmail.com");
+        email.setTemplateName("email_template_alrawi2.ftl");
+
+        return email;
+    }
 
 
 }

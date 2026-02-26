@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api/v1/auth/")
@@ -19,6 +20,7 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
     private final OtpService otpService;
+    private final RestTemplate restTemplate;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @ModelAttribute RegisterDto registerDto) {
@@ -28,14 +30,24 @@ public class AuthenticationController {
       else
           return new ResponseEntity<>(apiResponseDto, HttpStatus.BAD_REQUEST);
     }
-
+/*
     @PostMapping("/send-otp")
-    public ResponseEntity<?> sendOtp(@RequestBody SendOtpDto sendOtpDto) {
+    public ResponseEntity<?> sendOtp() {
        ApiResponseDto<?> responseDto= otpService.sendOtp(sendOtpDto.getEmail());
        if (responseDto.isStatus())
         return new ResponseEntity<>(responseDto,HttpStatus.OK);
        else
         return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
+    }
+    *
+ */
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> sendOtp(@Valid @RequestBody SendOtpDto sendOtpDto) {
+        ApiResponseDto<?> responseDto= otpService.sendOtpFromApi(sendOtpDto.getEmail());
+        if (responseDto.isStatus())
+            return new ResponseEntity<>(responseDto,HttpStatus.OK);
+        else
+            return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/verify-otp")

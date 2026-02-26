@@ -2,6 +2,7 @@ package eg.alrawi.alrawi_award.service;
 
 import eg.alrawi.alrawi_award.dto.ApiResponseDto;
 import eg.alrawi.alrawi_award.dto.OtpVerifyDto;
+import eg.alrawi.alrawi_award.dto.SendOtpDto;
 import eg.alrawi.alrawi_award.entity.AlrawiOtp;
 import eg.alrawi.alrawi_award.entity.AlrawiUser;
 import eg.alrawi.alrawi_award.mail.Email;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -35,6 +37,7 @@ public class OtpService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final RestTemplate restTemplate;
 
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final int OTP_LENGTH = 6;
@@ -58,6 +61,31 @@ public class OtpService {
         return ApiResponseDto.success("Successfully sent an OTP please check your mail NOTE: Can’t find your code? Be sure to check your spam/junk folder.", "SUCCESS");
     }
 
+    public ApiResponseDto<?> sendOtpFromApi(String userEmail) {
+
+        try {
+            AlrawiUser alrawiUser = userRepository.findByEmail(userEmail).orElse(null);
+
+            if (alrawiUser == null)
+                return ApiResponseDto.error(List.of("user not found"));
+
+            callOtpApi(userEmail);
+
+        } catch (Exception e) {
+            log.info("An error occurred while sending an OTP ", e);
+            return ApiResponseDto.error(List.of("An error occurred while sending an OTP"));
+        }
+
+        return ApiResponseDto.success("Successfully sent an OTP please check your mail NOTE: Can’t find your code? Be sure to check your spam/junk folder.", "SUCCESS");
+    }
+
+    public void callOtpApi(String userEmail) {
+        String url = "http://10.0.15.253:7002/api/v1/auth/otp";
+        SendOtpDto sendOtpDto = new SendOtpDto();
+        sendOtpDto.setEmail(userEmail);
+        restTemplate.postForObject(url, sendOtpDto, String.class);
+
+    }
 
     private void auditOtp(String userEmail, String otp) {
         AlrawiOtp alrawiOtp = new AlrawiOtp();

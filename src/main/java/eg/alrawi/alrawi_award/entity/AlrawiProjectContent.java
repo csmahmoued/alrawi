@@ -14,7 +14,7 @@ public class AlrawiProjectContent {
 
     private String contentKey;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private AlrawiProject  alrawiProject;
 

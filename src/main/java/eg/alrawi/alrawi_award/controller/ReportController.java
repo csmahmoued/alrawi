@@ -19,11 +19,10 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    @GetMapping("user/projects/v1/category/reports")
+    public ResponseEntity<InputStreamResource> exportCasOnly() throws IOException {
 
-    @GetMapping("user/projects/v1/reports")
-    public ResponseEntity<InputStreamResource> exportUsers() throws IOException {
-
-        ByteArrayInputStream excelFile=reportService.exportUsers();
+        ByteArrayInputStream excelFile=reportService.exportCategory();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=users.xlsx");
 
@@ -34,18 +33,5 @@ public class ReportController {
 
     }
 
-    @GetMapping("user/projects/v1/users/reports")
-    public ResponseEntity<InputStreamResource> exportUsersOnly() throws IOException {
-
-        ByteArrayInputStream excelFile=reportService.exportUsersTest();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=users.xlsx");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(new InputStreamResource(excelFile));
-
-    }
 
 }
