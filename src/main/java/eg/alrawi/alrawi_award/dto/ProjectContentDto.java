@@ -17,13 +17,14 @@ import java.util.List;
 public class ProjectContentDto implements Serializable {
 
     private Long categoryId;
+    private Long projectId;
 
     @Size(min = 2, max = 30 , message = "{invalid.project.title.size}")
-    @Pattern( regexp = "^[a-zA-Z\\u0621-\\u064A\\u06CC\\u064B-\\u0652\\p{P}\\s]+$" ,message = "{project.title.validation.message}")
+   // @Pattern( regexp = "^[a-zA-Z\\u0621-\\u064A\\u06CC\\u064B-\\u0652\\p{P}\\s]+$" ,message = "{project.title.validation.message}")
     private String projectTitle;
 
     @Size(min = 1, max = 300 , message = "{invalid.project.description.size}")
-    @Pattern( regexp = "^[a-zA-Z\\u0621-\\u064A\\u06CC\\u064B-\\u0652\\p{P}\\s]+$",message = "{project.description.validation.message}")
+  //  @Pattern( regexp = "^[a-zA-Z\\u0621-\\u064A\\u06CC\\u064B-\\u0652\\p{P}\\s]+$",message = "{project.description.validation.message}")
     private String projectDescription;
 
     @ValidPdf

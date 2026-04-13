@@ -31,11 +31,14 @@ public class TestController {
 
     @GetMapping("/test")
     public ResponseEntity<?> test(@RequestBody List<String> emils) throws IOException {
+        int count=0;
        for (String emil : emils) {
            Email email = getEmail(emil);
            mailService.sendMail(email);
+           count++;
        }
-        return new ResponseEntity<>("ok",HttpStatus.OK);
+
+        return new ResponseEntity<>("ok count "+count,HttpStatus.OK);
     }
 
 

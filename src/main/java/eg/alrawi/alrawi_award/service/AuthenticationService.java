@@ -104,6 +104,11 @@ public class AuthenticationService {
             List<AlrawiProject> deletedProjects=getInvalidProjectsNotInBuckets(user);
             deleteInvalidProjects(deletedProjects,user);
             UserResponseDto userResponseDto =userMapper.mapUserDto(user);
+         if (!userResponseDto.getProjects().isEmpty()) {
+             userResponseDto.getProjects().forEach((project) -> {
+                 project.setProjectStatus("SUBMITTED");
+             });
+         }
 
             return  ApiResponseDto.success(userResponseDto,Constants.SUCCESS);
 

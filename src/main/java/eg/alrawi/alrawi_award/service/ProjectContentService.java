@@ -17,6 +17,7 @@ import eg.alrawi.alrawi_award.utils.LocalUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +38,43 @@ public class ProjectContentService {
     private final FileService fileService;
     private final HttpServletRequest request;
     private final LocalUtils localUtils;
+
+    public ApiResponseDto<?> updateProject(ProjectContentDto projectContentDto){
+
+        UploadProjectResponseDto  uploadProjectResponseDto = new UploadProjectResponseDto();
+
+      try {
+          AlrawiProject alrawiProject=projectRepository.findById(projectContentDto.getProjectId()).orElseThrow(()-> new  UsernameNotFoundException("project not found"));
+
+          alrawiProject.setProjectDescription(projectContentDto.getProjectDescription());
+
+          alrawiProject.setProjectTitle(projectContentDto.getProjectTitle());
+
+          List<String> projectContentKeys = new ArrayList<>();
+
+          alrawiProject.getAlrawiProjectContent().forEach(alrawiProjectContent -> projectContentKeys.add(alrawiProjectContent.getContentKey()));
+
+          String uploadUrl = uploadProjectContents(alrawiProject,projectContentDto,projectContentKeys);
+
+          if (uploadUrl != null && !uploadUrl.isEmpty())
+              uploadProjectResponseDto.setUploadUrl(uploadUrl);
+
+          projectRepository.save(alrawiProject);
+
+          uploadProjectResponseDto.setProjectName(alrawiProject.getProjectTitle());
+
+          return ApiResponseDto.success(uploadProjectResponseDto, Constants.SUCCESS);
+
+      }catch (UsernameNotFoundException e){
+          return ApiResponseDto.businessException(List.of(e.getMessage()));
+      }
+      catch (Exception e){
+          log.info("an error has occurred while trying to update the project",e);
+          return ApiResponseDto.businessException(List.of("an error has occurred while trying to update the project"));
+      }
+
+
+    }
 
     public ApiResponseDto<?> uploadProject(ProjectContentDto projectContentDto){
 

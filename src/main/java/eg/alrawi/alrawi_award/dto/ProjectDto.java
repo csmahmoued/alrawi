@@ -1,5 +1,6 @@
 package eg.alrawi.alrawi_award.dto;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,4 +16,6 @@ public class ProjectDto implements Serializable {
     private String projectDescription;
     private String categoryName;
     private String projectStatus;
+
+
 }
