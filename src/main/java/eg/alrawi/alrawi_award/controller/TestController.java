@@ -48,7 +48,7 @@ public class TestController {
         email.setSubject("AlRawiAwards");
         email.setFromEmail("alrawiawards@gmail.com");
         email.setFrom("alrawiawards@gmail.com");
-        email.setTemplateName("email_template_alrawi2.ftl");
+        email.setTemplateName("email_template_alrawi3.ftl");
 
         return email;
     }
